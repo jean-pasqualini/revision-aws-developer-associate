@@ -1,0 +1,12 @@
+Transform: AWS::Serverless-2016-10-31
+Resources:
+  ByeLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: bye-lambda
+      Runtime: nodejs12.x
+      CodeUri: ./src/bye
+      Handler: index.lambda
+      Policies:
+        - AWSLambdaBasicExecutionRole
+      Timeout: 10

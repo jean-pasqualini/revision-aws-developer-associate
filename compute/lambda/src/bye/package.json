@@ -1,0 +1,11 @@
+{
+  "name": "lambda",
+  "version": "1.0.0",
+  "description": "- Comprendre les mécanisme de retry   - Dans le cadre d'un appel direct   - Dans le cadre d'un event dynamodb   - Dans le cadre d'un event kinesis   - Dans le cadre d'un event sqs   - Dans le cadre d'un event sns - Comprendre les mécaniques de DLQ - Faire un invoke en mode request/response - Faire un invoke en mode async",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
