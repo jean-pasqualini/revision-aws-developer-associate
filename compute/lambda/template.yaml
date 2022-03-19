@@ -21,9 +21,68 @@ Resources:
         ProvisionedConcurrentExecutions: 1
       ReservedConcurrentExecutions: 1
       Tracing: "Active"
-      Events:
-        ApiEvent:
-          Type: Api
-          Properties:
-            Method: get
-            Path: /bye
+
+  ApiBye:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Name: bye-api
+
+  ApiByeResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref ApiBye
+      PathPart: "bye"
+      ParentId: !GetAtt ApiBye.RootResourceId
+
+  # https://nickolaskraus.org/articles/creating-an-amazon-api-gateway-with-a-lambda-integration-using-cloudformation/
+  # https://docs.aws.amazon.com/apigateway/api-reference/resource/integration/
+  # https://docs.aws.amazon.com/fr_fr/AWSCloudFormation/latest/UserGuide/aws-properties-apitgateway-method-integration.html#cfn-apigateway-method-integration-uri
+  ApiByeMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref ApiBye
+      ResourceId: !Ref ApiByeResource
+      HttpMethod: POST
+      OperationName: "InvokeLambda"
+      AuthorizationType: NONE
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS
+        Uri: !Sub
+          - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${lambdaArn}/invocations
+          - lambdaArn: arn:aws:lambda:eu-west-3:935529178062:function:bye-lambda:prod
+        IntegrationResponses:
+          - StatusCode: 200
+      MethodResponses:
+        - StatusCode: 200
+
+  ApiByeStage:
+    Type: AWS::ApiGateway::Stage
+    Properties:
+      StageName: prod
+      TracingEnabled: true
+      RestApiId: !Ref ApiBye
+      DeploymentId: !Ref ApiByeDeployement
+
+  ApiByeDeployement:
+    Type: AWS::ApiGateway::Deployment
+    Properties:
+      RestApiId: !Ref ApiBye
+
+  ApiByePermissionInvokeLambda:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Sub
+        - "${lambdaArn}:${lambdaAlias}"
+        - lambdaArn: !GetAtt ByeLambda.Arn
+          lambdaAlias: "prod"
+      Principal: apigateway.amazonaws.com
+      # SourceArn: arn:aws:execute-api:us-east-1:ACCOUNT_ID:API_ID/*/METHOD/ENDPOINT
+      # arn:aws:execute-api:eu-west-3:935529178062:py3se3doj9/*/POST/bye
+      # To see on the fonction overview which is the source arn need to be filled but this is not required to work
+
+Outputs:
+  LambdaArn:
+    Description: lambda arn
+    Value: !GetAtt ByeLambda.Arn

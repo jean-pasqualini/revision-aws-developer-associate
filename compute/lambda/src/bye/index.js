@@ -9,6 +9,8 @@ exports.lambda = async function (event, context) {
     if(event.case === "concurency") {
         await useCaseSleep(20 * 1000)
     }
+
+    return {"fromLambda": true}
 }
 
 function useCaseError() {

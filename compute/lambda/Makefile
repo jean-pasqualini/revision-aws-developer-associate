@@ -1,6 +1,9 @@
 
 deploy:
+	sam build --profile treezor-playground --region eu-west-3
 	sam deploy --profile treezor-playground --stack-name revision-lambda --resolve-s3 --region eu-west-3 --capabilities CAPABILITY_IAM
+delete:
+	sam delete --profile treezor-playground --stack-name revision-lambda --region eu-west-3
 sync-invoke:
 	aws --profile treezor-playground lambda invoke --log-type Tail --invocation-type DryRun --function-name bye-lambda /dev/stdout
 async-invoke:

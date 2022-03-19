@@ -82,6 +82,14 @@ Si vous avez une lambda qui prend 30 seconds à s'éxécuter avec le try + les 2
 - https://epsagon.com/observability/how-to-handle-aws-lambda-errors-like-a-pro/#:~:text=Lambda%20functions%20can%20fail%20in,seconds'%20message.
 - https://enrico-portolan.medium.com/how-aws-lambda-retry-really-works-fb823e78b4a1
 
+#### Async
+L'event mapping est une ressource
+
+- L'invoke d'une fonction en mode event utilise bien la stratégie de retry de la lambda elle même
+- SQS
+  - En mode standard
+
+
 #### Sync
 Dans le cadre d'un appel sync le retry n'est pas fait automatiquement par le service lambda.
 Seul le client peut décider de retry ou non. L'api gateway par example ne fait pas de retry.
