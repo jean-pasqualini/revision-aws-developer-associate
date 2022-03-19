@@ -1,12 +1,29 @@
 Transform: AWS::Serverless-2016-10-31
 Resources:
+  # https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-function.html#sam-function-packagetype
   ByeLambda:
     Type: AWS::Serverless::Function
     Properties:
+      AutoPublishAlias: prod
+      Description: "bye bye bye"
       FunctionName: bye-lambda
       Runtime: nodejs12.x
+      MemorySize: 128
       CodeUri: ./src/bye
       Handler: index.lambda
       Policies:
         - AWSLambdaBasicExecutionRole
-      Timeout: 10
+      Timeout: 120
+      DeadLetterQueue:
+        Type: SNS
+        TargetArn: arn:aws:sns:eu-west-3:935529178062:EmailNotified
+      ProvisionedConcurrencyConfig:
+        ProvisionedConcurrentExecutions: 1
+      ReservedConcurrentExecutions: 1
+      Tracing: "Active"
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            Method: get
+            Path: /bye

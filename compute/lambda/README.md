@@ -8,3 +8,81 @@
 - Comprendre les mécaniques de DLQ
 - Faire un invoke en mode request/response
 - Faire un invoke en mode async
+- Connecter au vpc et joindre une machine ec2
+- Faire un process qui créer une concurency de 20
+  - il faut créer une version et un alias car la version $LATEST n'est pas un target valable
+  - Créer un process qui dure 20 secondes
+  - Poper un process toute les 1 secondes
+  - Le concurency devrai monté à 20 puis redescendre
+  - Resultat
+    - Dans le cadre reserved 1 / provisioned 1 
+      - Si async: chaque lambda attend son tour
+      - Si pas async: les autres sont throttle
+# https://www.rajeshbhojwani.co.in/2020/01/aws-lambda-destinations-vs-step.html
+- Configurer une destination (rien à voir avec les DLQ, il est possible de conditionné l'echec ou la réussite)
+  - La DLQ recoit l'input
+  - La destination recoit l'output
+
+## Apprentissage
+
+#### Concurrency
+
+Quand la concurency est atteninte, si vous appelez la lambda en mode RequestReponse vous aurez un HTTP 429 Too Many Request
+Cependant si vous l'appelez en mode Event, votre event sera mis en attente 
+
+Prenons le premier cas,
+Vous n'utiliez pas l'aws sdk ou cli donc pas de retry client.
+Vous faite un appel RequestResponse donc votre appel n'est pas mis en quue
+Vous avez une réserve de 1.
+Vous avez une provision de 1.
+Votre lambda met 20 secondes à s'éxécuter.
+Vous faire 1 appels par secondes.
+
+Dans ce cas, vous aurez 1 appel OK avec du coldstart et 19 appel KO. 
+
+Prenons le second cas.
+Vous n'utiliez pas l'aws sdk ou cli donc pas de retry client.
+Vous faite un appel RequestResponse donc votre appel n'est pas mis en quue
+Vous avez une réserve de 20.
+Vous avez une provision de 10.
+Votre lambda met 20 secondes à s'éxécuter.
+Vous faire 1 appels par secondes.
+
+Dans ce cas vous aurez 10 appels OK avec du coldstart et 10 appels KO.
+
+### Dead Letter Queue
+
+La dead letter queue est utilisé une fois tout les retry épuisé et envoie l'input de la réponse.
+Elle ne peut s'appliquer qu'au fails
+
+### Destination
+
+La destination est utilisé une fois tous les retry épuise et envoie l'output de la réponse. 
+Elle peut s'appliquer au succèss ou fail selon votre choix.
+
+### Retry mechanism
+
+#### Est considérer comme un echec
+- Un timeout de la part de la lambda
+- ...
+
+#### Time distribution
+
+AWS use the expodential backoff pour déterminer le temps avant de retry
+Le délais est de 1mn puis 2mn (on à donc un facteur multiplicatif de 2 et un délai de départ de 1mn)
+Si vous avez une lambda qui prend 30 seconds à s'éxécuter avec le try + les 2 retries qui échoue la timeline sera la suivante. (format minutes:seconds)
+
+- 1er) 00:00 -> 00:30
+- 2eme) 01:30 -> 02:00
+- 3eme) 04:00 -> 04:30
+
+#### Documentations
+- https://docs.aws.amazon.com/lambda/latest/dg/invocation-retries.html
+- https://docs.aws.amazon.com/lambda/latest/dg/invocation-retries.html
+- https://epsagon.com/observability/how-to-handle-aws-lambda-errors-like-a-pro/#:~:text=Lambda%20functions%20can%20fail%20in,seconds'%20message.
+- https://enrico-portolan.medium.com/how-aws-lambda-retry-really-works-fb823e78b4a1
+
+#### Sync
+Dans le cadre d'un appel sync le retry n'est pas fait automatiquement par le service lambda.
+Seul le client peut décider de retry ou non. L'api gateway par example ne fait pas de retry.
+Mais l'appel d'une lambda via aws sdk/cli va retry dans certaines conditions (client timeouts, throttling and services errors)
