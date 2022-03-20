@@ -25,7 +25,23 @@
 
 ## Apprentissage
 
+#### Event Mapping
+
+L'event mapping est une ressource et il utilise les permissions de la lambda pour intéragir avec sqs, sns, ...
+
+#### Abort
+
+Dans le cadre d'un appel de type request/response de la part d'un api gateway ou aws sdk/cli
+Une HTTP 500 est retourné au bout du timeout de l'intégration mais la lambda elle continue de s'éxécuter.
+
+Seul le timeout de la lambda décide de s'il faut abord ou non l'exécution. vous êtes donc facturez pendant ce temps.
+Le throttle ou le publish de nouvelle version va seulement impacter les futures invocations.
+
 #### Concurrency
+
+A noter la reserve concurency est globale, la provided concurency est lié à l'alias.
+Donc veillez à avoir suffisament de reserved concurency car imaginons si vous avez une réserve concurency de 1
+et une provisione concurency de 1 sur l'alias prod et que vous voulez appelez la version $LATEST vous ne pourez pas.
 
 Quand la concurency est atteninte, si vous appelez la lambda en mode RequestReponse vous aurez un HTTP 429 Too Many Request
 Cependant si vous l'appelez en mode Event, votre event sera mis en attente 
@@ -87,8 +103,16 @@ L'event mapping est une ressource
 
 - L'invoke d'une fonction en mode event utilise bien la stratégie de retry de la lambda elle même
 - SQS
-  - En mode standard
-
+  - En mode standard / En mode FIFO
+    - C'est l'event mapping qui appelle la lambda et c'est un appel de type request, le message n'est delete que si la lambda success
+    - C'est la visibility timeout de SQS qui détermine le retry
+    - C'est la dead letter queuue de SQS qui détermine le nombre maximum de receive et la destination après
+    - Si pas de dead letter queue ce sera le max retention period qui supprimera le message
+- SNS
+  - La politique de retry complexe de SNS ne rentre pas en ligne de compte sur du lambda car c'est une invocation de type event
+  - C'est donc la politique de retry de la lambda qui s'applique
+- Dyanmo stream / Kinesis Stream
+  - Le retry est expodentiel et le nombre de retry est défini l'ors de la définition de l'event source mapping, par défaut il est sur infini
 
 #### Sync
 Dans le cadre d'un appel sync le retry n'est pas fait automatiquement par le service lambda.
