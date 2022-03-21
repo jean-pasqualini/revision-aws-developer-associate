@@ -1,7 +1,7 @@
 
 deploy:
-	sam build --profile treezor-playground --region eu-west-3
-	sam deploy --profile treezor-playground --stack-name revision-lambda --resolve-s3 --region eu-west-3 --capabilities CAPABILITY_IAM
+	sam build --profile treezor-playground
+	sam deploy --profile treezor-playground --resolve-s3
 delete:
 	sam delete --profile treezor-playground --stack-name revision-lambda --region eu-west-3
 sync-invoke:

@@ -1,3 +1,7 @@
+## Note
+- https://learn.hashicorp.com/tutorials/terraform/lambda-api-gateway
+- https://learn.hashicorp.com/tutorials/terraform/blue-green-canary-tests-deployments?in=terraform/aws
+
 ## Objectif
 - Comprendre les mécanisme de retry
   - Dans le cadre d'un appel direct
@@ -9,6 +13,10 @@
 - Faire un invoke en mode request/response
 - Faire un invoke en mode async
 - Connecter au vpc et joindre une machine ec2
+- Faire fonctionner le montage nfs
+- Regarder du coté de la signature de code
+- Regarder du coté des préférences de déployment
+- Regarder pour décrypter les variables d'env
 - Faire un process qui créer une concurency de 20
   - il faut créer une version et un alias car la version $LATEST n'est pas un target valable
   - Créer un process qui dure 20 secondes

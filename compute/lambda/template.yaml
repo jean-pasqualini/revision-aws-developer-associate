@@ -1,9 +1,33 @@
 Transform: AWS::Serverless-2016-10-31
 Resources:
+  ByeSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: bye-sg
+      GroupDescription: "bye sg security group"
+      SecurityGroupIngress:
+        - IpProtocol: "-1"
+          CidrIp: 0.0.0.0/0
+      SecurityGroupEgress:
+        - IpProtocol: "-1"
+          CidrIp: 0.0.0.0/0
+      VpcId: vpc-ee8b7486
+
   # https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-function.html#sam-function-packagetype
   ByeLambda:
+    DependsOn: SharedEFSAccessPoint
     Type: AWS::Serverless::Function
     Properties:
+      # https://docs.aws.amazon.com/codedeploy/latest/userguide/deployment-configurations.html
+      # https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/automating-updates-to-serverless-apps.html
+      DeploymentPreference:
+        Type: CodeDeployDefault.LambdaAllAtOnce
+      VpcConfig:
+        SecurityGroupIds: [!Ref ByeSecurityGroup]
+        SubnetIds: ["subnet-2f3c2646"]
+      FileSystemConfigs:
+        - Arn: !GetAtt SharedEFSAccessPoint.Arn
+          LocalMountPath: "/mnt/shared"
       AutoPublishAlias: prod
       Description: "bye bye bye"
       FunctionName: bye-lambda
@@ -13,14 +37,51 @@ Resources:
       Handler: index.lambda
       Policies:
         - AWSLambdaBasicExecutionRole
+        - AWSLambdaVPCAccessExecutionRole
+        - AmazonElasticFileSystemClientFullAccess
       Timeout: 120
       DeadLetterQueue:
         Type: SNS
         TargetArn: arn:aws:sns:eu-west-3:935529178062:EmailNotified
       ProvisionedConcurrencyConfig:
         ProvisionedConcurrentExecutions: 1
-      ReservedConcurrentExecutions: 1
+      ReservedConcurrentExecutions: 2
       Tracing: "Active"
+
+  # https://aws.amazon.com/blogs/compute/using-amazon-efs-for-aws-lambda-in-your-serverless-applications/
+  SharedEFS:
+    Type: AWS::EFS::FileSystem
+    Properties:
+      Encrypted: false
+      FileSystemPolicy:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Action: "elasticfilesystem:ClientMount"
+            Principal:
+                AWS: "*"
+
+  SharedEFSMountTarget:
+    Type: AWS::EFS::MountTarget
+    Properties:
+      FileSystemId: !Ref SharedEFS
+      SubnetId: "subnet-2f3c2646"
+      SecurityGroups:
+        - !Ref ByeSecurityGroup
+
+  SharedEFSAccessPoint:
+    Type: AWS::EFS::AccessPoint
+    Properties:
+      FileSystemId: !Ref SharedEFS
+      PosixUser:
+        Uid: "1000"
+        Gid: "1000"
+      RootDirectory:
+        CreationInfo:
+          OwnerGid: "1000"
+          OwnerUid: "1000"
+          Permissions: "0777"
+        Path: "/myefs"
 
   ApiBye:
     Type: AWS::ApiGateway::RestApi
@@ -38,6 +99,7 @@ Resources:
   # https://docs.aws.amazon.com/apigateway/api-reference/resource/integration/
   # https://docs.aws.amazon.com/fr_fr/AWSCloudFormation/latest/UserGuide/aws-properties-apitgateway-method-integration.html#cfn-apigateway-method-integration-uri
   ApiByeMethod:
+    DependsOn: ByeLambda
     Type: AWS::ApiGateway::Method
     Properties:
       RestApiId: !Ref ApiBye
@@ -66,6 +128,8 @@ Resources:
 
   ApiByeDeployement:
     Type: AWS::ApiGateway::Deployment
+    DependsOn:
+      - ApiByeMethod
     Properties:
       RestApiId: !Ref ApiBye
 
