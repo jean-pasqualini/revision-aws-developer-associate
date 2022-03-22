@@ -5,9 +5,16 @@ exports.lambda = async function (event, context) {
     console.log(JSON.stringify(context))
     console.log('aaa')
 
-    fs.writeFileSync("/mnt/shared/myefs/lol.txt", "je suis la")
+    if (event.case === "env") {
+        return {"color": process.env['COLOR']}
+    }
 
-    const cont = fs.readFileSync("/mnt/shared/myefs/lol.txt")
+    if (event.case === "efs") {
+        fs.writeFileSync("/mnt/shared/lol.txt", "je suis la")
+
+        const cont = fs.readFileSync("/mnt/shared/lol.txt")
+        return {"fromLambda": true, "contentefs": cont}
+    }
 
     if(event.case === "retry") {
         await useCaseSleep(3 * 1000)
@@ -31,7 +38,7 @@ exports.lambda = async function (event, context) {
         }
     }
 
-    return {"fromLambda": true, "contentefs": cont}
+    return {"fromLambda": true}
 }
 
 function useCaseError() {

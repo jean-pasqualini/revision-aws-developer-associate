@@ -1,6 +1,11 @@
+# https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/authoring-codesigning.html
+create-signing-profile:
+	aws --profile treezor-playground signer put-signing-profile --platform-id "AWSLambda-SHA384-ECDSA" --profile-name MySigningProfile
+package:
+	#sam package --profile treezor-playground --signing-profiles HelloWorld=MySigningProfile --resolve-s3 --output-template-file packaged.yaml
 
 deploy:
-	sam build --profile treezor-playground
+	sam build --profile treezor-playground --signing-profiles HelloWorld=MySigningProfile
 	sam deploy --profile treezor-playground --resolve-s3
 delete:
 	sam delete --profile treezor-playground --stack-name revision-lambda --region eu-west-3

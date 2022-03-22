@@ -33,6 +33,15 @@
 
 ## Apprentissage
 
+#### VPC & EFS
+
+Il est néscésssaire avec un moint point par vpc/subnet pour monter un efs existant sur lambda ou ec2.
+Les lambdas ont besoin de permission pour monter/lire/écrire sur un efs.
+
+Il est possible d'utiliser le type de systeme efs ou nfs pour monter un efs.
+
+Il est possible d'utiliser l'accès point pour compartimenter les accèss.
+
 #### Event Mapping
 
 L'event mapping est une ressource et il utilise les permissions de la lambda pour intéragir avec sqs, sns, ...
