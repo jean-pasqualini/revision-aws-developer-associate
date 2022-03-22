@@ -33,6 +33,7 @@ Resources:
       #    LocalMountPath: "/mnt/shared"
       KmsKeyArn: arn:aws:kms:eu-west-3:935529178062:key/e3406326-3b44-4301-8ca5-8a5b023186e1
       #AutoPublishAlias: prod
+      CodeSigningConfigArn: !Ref ByeCodeSigning
       Description: "bye bye bye"
       FunctionName: bye-lambda
       Runtime: nodejs12.x
@@ -55,13 +56,16 @@ Resources:
       ReservedConcurrentExecutions: 1
       Tracing: "Active"
 
+  # https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/authoring-codesigning.html
+  # https://awscloudfeed.com/whats-new/security/best-practices-and-advanced-patterns-for-lambda-code-signing
   ByeCodeSigning:
     Type: AWS::Lambda::CodeSigningConfig
     Properties:
       AllowedPublishers:
-        - SigningProfileVersionArns: []
+        SigningProfileVersionArns:
+            - arn:aws:signer:eu-west-3:935529178062:/signing-profiles/MySigningProfile/Sz4lugRbGn
       CodeSigningPolicies:
-        - UntrustedArtifactOnDeployment: Enforce # Warn
+        UntrustedArtifactOnDeployment: Enforce # Warn
       Description: "code signing config"
 
   # https://docs.aws.amazon.com/efs/latest/ug/efs-mount-helper.html

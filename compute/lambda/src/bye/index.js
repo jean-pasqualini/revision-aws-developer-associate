@@ -38,7 +38,7 @@ exports.lambda = async function (event, context) {
         }
     }
 
-    return {"fromLambda": true}
+    return {"fromLambda": true, "version": "v3"}
 }
 
 function useCaseError() {
