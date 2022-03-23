@@ -1,0 +1,13 @@
+Resources:
+  Instance:
+    Type: AWS::EC2::Instance
+    Metadata:
+      SctId: 9
+    Properties:
+      ImageId: "ami-0960de83329d12f2f"
+      InstanceType: "t2.micro"
+
+Outputs:
+  InstanceId:
+    Description: Information about the instance
+    Value: !Ref Instance

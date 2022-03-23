@@ -16,6 +16,19 @@ cat /etc/os-release
 
 Les outils installé sont dispo dans /opt/aws
 
+- cfn-elect-cmd-leader
+- cfn-get-metadata
+- cfn-hup
+- cfn-init
+- cfn-send-cmd-event
+- cfn-send-cmd-result
+- cfn-signal
+- ec2-metadata
+- eic_curl_authorized_keys
+- eic_harvest_hostkeys
+- eic_parse_authorized_keys
+- eic_run_authorized_keys
+
 ## Cloud init
 
 https://docs.aws.amazon.com/fr_fr/AWSEC2/latest/UserGuide/amazon-linux-ami-basics.html#amazon-linux-cloud-init
