@@ -3,9 +3,80 @@ Resources:
     Type: AWS::EC2::Instance
     Metadata:
       SctId: 9
+      AWS::CloudFormation::Init:
+        configSets:
+          initStage: [firstStep]
+        firstStep:
+          packages:
+            yum:
+              httpd: []
+          commands:
+            list installed packages:
+              command: touch /tmp/firstep
+          groups:
+            vip: {}
+          users:
+            john: {}
+          files:
+            /tmp/vip:
+              content: |
+                une maison violette sur la colline bleu
+            /etc/cfn/cfn-hup.conf:
+              content: |
+                [main]
+                stack=ec2-revision
+                region=eu-west-3
+                interval=1440
+                verbose=true
+            /etc/cfn/hooks.d/cfn-init-update.conf:
+              content: !Sub |
+                [cfn-auto-reloader-hook]
+                triggers=post.update
+                path=Resources.Instance.Metadata.AWS::CloudFormation::Init
+                action=/opt/aws/bin/cfn-init -v --stack ${AWS::StackName} --resource Instance --configsets initStage --region ${AWS::Region}
+                runas=root
+              mode: "000400"
+              owner: "root"
+              group: "root"
+          services:
+            systemd:
+              httpd:
+                enabled: true
+                ensureRunning: true
+
+    CreationPolicy:
+      ResourceSignal:
+        # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-attribute-creationpolicy.html#cfn-attributes-creationpolicy-resourcesignal-timeout
+        Timeout: PT30M
     Properties:
       ImageId: "ami-0960de83329d12f2f"
       InstanceType: "t2.micro"
+      UserData:
+        Fn::Base64: |
+          Content-Type: multipart/mixed; boundary="//"
+          MIME-Version: 1.0
+
+          --//
+          Content-Type: text/cloud-config; charset="us-ascii"
+          MIME-Version: 1.0
+          Content-Transfer-Encoding: 7bit
+          Content-Disposition: attachment; filename="cloud-config.txt"
+
+          #cloud-config
+          cloud_final_modules:
+          - [scripts-user, always]
+
+          --//
+          Content-Type: text/x-shellscript; charset="us-ascii"
+          MIME-Version: 1.0
+          Content-Transfer-Encoding: 7bit
+          Content-Disposition: attachment; filename="userdata.txt"
+
+          #!/bin/bash
+          touch /tmp/lal
+          touch /tmp/lol
+          touch /home/ec2-user/$(date +"%T")
+          --//--
 
 Outputs:
   InstanceId:

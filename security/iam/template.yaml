@@ -1,0 +1,5 @@
+Resources:
+  User:
+    Type: AWS::IAM::User
+    Properties:
+      UserName: revision.user
