@@ -1,5 +1,52 @@
+Parameters:
+  PasswordParameter:
+    Type: String
+    Description: the user's password
+
 Resources:
   User:
     Type: AWS::IAM::User
     Properties:
       UserName: revision.user
+      LoginProfile:
+        Password: !Ref PasswordParameter
+        PasswordResetRequired: false
+      PermissionsBoundary: !Ref UserBoundaryPolicy
+
+  UserBoundaryPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: "revision.user.boundary"
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action: [sns:*, s3:*]
+            Resource: "*"
+
+  S3ResourcePolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: flow-athena-test
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Principal: { AWS: !Sub "arn:aws:iam::${AWS::AccountId}:user/revision.user" }
+            Effect: Allow
+            Action: s3:ListBucket
+            Resource: arn:aws:s3:::flow-athena-test
+
+  UserManagedPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: "revision.user.policy"
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action: s3:ListAllMyBuckets
+            Resource: "*"
+          - Effect: Allow
+            Action: s3:ListBucket
+            Resource: arn:aws:s3:::lambda-js-shell
+      Users: [!Ref User]
