@@ -3,12 +3,15 @@
 - https://learn.hashicorp.com/tutorials/terraform/blue-green-canary-tests-deployments?in=terraform/aws
 
 ## Objectif
+- Est-ce que le timeout inclu le temps de coldstart ????
 - Comprendre les mécanisme de retry
   - Dans le cadre d'un appel direct
   - Dans le cadre d'un event dynamodb
   - Dans le cadre d'un event kinesis
   - Dans le cadre d'un event sqs
   - Dans le cadre d'un event sns
+  - Dans le cadre d'un event bridge .......
+  - Quand est t-il des retry sur les destination ?....
 - Comprendre les mécaniques de DLQ
 - Faire un invoke en mode request/response
 - Faire un invoke en mode async
@@ -125,7 +128,7 @@ L'event mapping est une ressource
     - C'est la visibility timeout de SQS qui détermine le retry
     - C'est la dead letter queuue de SQS qui détermine le nombre maximum de receive et la destination après
     - Si pas de dead letter queue ce sera le max retention period qui supprimera le message
-- SNS
+- SNS/EventBridge
   - La politique de retry complexe de SNS ne rentre pas en ligne de compte sur du lambda car c'est une invocation de type event
   - C'est donc la politique de retry de la lambda qui s'applique
 - Dyanmo stream / Kinesis Stream

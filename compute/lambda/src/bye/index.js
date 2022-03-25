@@ -3,7 +3,7 @@ const fs = require('fs')
 exports.lambda = async function (event, context) {
     console.log(JSON.stringify(event))
     console.log(JSON.stringify(context))
-    console.log('aaa')
+    console.log(JSON.stringify(process.env))
 
     if (event.case === "env") {
         return {"color": process.env['COLOR']}
@@ -26,6 +26,11 @@ exports.lambda = async function (event, context) {
 
     if(event.case === "apitimeout") {
         await useCaseSleep(35 * 1000)
+    }
+
+    if(event.source === "aws.ec2") {
+        console.log(event.detail)
+        useCaseError()
     }
 
     if (typeof event.Records != "undefined") {

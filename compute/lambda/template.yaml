@@ -51,6 +51,16 @@ Resources:
       DeadLetterQueue:
         Type: SNS
         TargetArn: arn:aws:sns:eu-west-3:935529178062:EmailNotified
+      Events:
+        #  S3 | SNS | Kinesis | DynamoDB | SQS | Api | Schedule | CloudWatchEvent | EventBridgeRule | CloudWatchLogs
+        # | IoTRule | AlexaSkill | Cognito | HttpApi | MSK | MQ | SelfManagedKafka
+        Main:
+          Type: EventBridgeRule
+          Properties:
+            EventBusName: default
+            Pattern:
+              source: ["aws.ec2"]
+              detail-type: ["EC2 Instance State-change Notification"]
       #ProvisionedConcurrencyConfig:
       #  ProvisionedConcurrentExecutions: 1
       ReservedConcurrentExecutions: 1
