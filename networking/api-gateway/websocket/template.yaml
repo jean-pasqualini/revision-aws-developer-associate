@@ -1,8 +1,72 @@
 Resources:
   ApiGateway:
-    Type: AWS::ApiGateway::RestApi
+    Type: AWS::ApiGatewayV2::Api
     Properties:
       ProtocolType: WEBSOCKET
-      RouteKey: $request.body.action
+      RouteSelectionExpression: $request.body.action
       Description: websocket api revision
       Name: revision-websocket
+
+  GetConnectionIdRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref ApiGateway
+      RouteKey: "getConnectionId"
+      Target: !Join
+        - /
+        - - integrations
+          - !Ref GetConnectionIdIntegrationRequest
+
+  CallHook:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref ApiGateway
+      RouteKey: $default
+      OperationName: "catch all"
+      Target: !Join
+        - /
+        - - integrations
+          - !Ref CallHookIntegrationRequest
+
+  CallHookIntegrationRequest:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref ApiGateway
+      IntegrationType: HTTP_PROXY
+      IntegrationMethod: POST
+      IntegrationUri: https://hookb.in/xYwRMMEQZlc0nNxxjRgE
+
+  GetConnectionIdIntegrationRequest:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref ApiGateway
+      IntegrationType: MOCK
+      TemplateSelectionExpression: 200
+      RequestTemplates:
+        "200": "{\"statusCode\": 200}"
+
+  GetConnectionIdIntegrationResponse:
+    Type: AWS::ApiGatewayV2::IntegrationResponse
+    Properties:
+      ApiId: !Ref ApiGateway
+      IntegrationId: !Ref GetConnectionIdIntegrationRequest
+      IntegrationResponseKey: "$default"
+      TemplateSelectionExpression: 200
+      ResponseTemplates:
+        "200": "Connection id getted: $context.connectionId"
+
+  GetConnectionIdRouteResponse:
+    Type: AWS::ApiGatewayV2::RouteResponse
+    Properties:
+      ApiId: !Ref ApiGateway
+      RouteId: !Ref GetConnectionIdRoute
+      RouteResponseKey: "$default"
+
+
+  ApiGatewayStage:
+    Type: AWS::ApiGatewayV2::Stage
+    Properties:
+      ApiId: !Ref ApiGateway
+      AutoDeploy: true
+      Description: prod
+      StageName: production
