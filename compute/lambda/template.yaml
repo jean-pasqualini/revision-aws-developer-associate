@@ -51,6 +51,11 @@ Resources:
       DeadLetterQueue:
         Type: SNS
         TargetArn: arn:aws:sns:eu-west-3:935529178062:EmailNotified
+      EventInvokeConfig:
+        DestinationConfig:
+          OnSuccess:
+            Type: Lambda
+            Destination: !GetAtt ByeReceive.Arn
       Events:
         #  S3 | SNS | Kinesis | DynamoDB | SQS | Api | Schedule | CloudWatchEvent | EventBridgeRule | CloudWatchLogs
         # | IoTRule | AlexaSkill | Cognito | HttpApi | MSK | MQ | SelfManagedKafka
@@ -65,6 +70,16 @@ Resources:
       #  ProvisionedConcurrentExecutions: 1
       ReservedConcurrentExecutions: 1
       Tracing: "Active"
+
+  ByeReceive:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: bye-receive-lambda
+      Runtime: nodejs12.x
+      CodeUri: ./src/bye
+      Handler: index.lambdareceive
+      Tracing: "Active"
+
 
   # https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/authoring-codesigning.html
   # https://awscloudfeed.com/whats-new/security/best-practices-and-advanced-patterns-for-lambda-code-signing

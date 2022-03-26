@@ -46,6 +46,13 @@ exports.lambda = async function (event, context) {
     return {"fromLambda": true, "version": "v3"}
 }
 
+exports.lambdareceive = async function(event, context) {
+    console.log(JSON.stringify(event))
+    useCaseError()
+
+    return {"fromLambda": "receive", "input": event};
+}
+
 function useCaseError() {
     throw new Error("an error")
 }

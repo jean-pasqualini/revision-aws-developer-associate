@@ -1,0 +1,8 @@
+Resources:
+  ApiGateway:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      ProtocolType: WEBSOCKET
+      RouteKey: $request.body.action
+      Description: websocket api revision
+      Name: revision-websocket

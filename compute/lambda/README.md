@@ -3,15 +3,15 @@
 - https://learn.hashicorp.com/tutorials/terraform/blue-green-canary-tests-deployments?in=terraform/aws
 
 ## Objectif
-- Est-ce que le timeout inclu le temps de coldstart ????
+- Est-ce que le timeout inclu le temps de coldstart ???? non
 - Comprendre les mécanisme de retry
   - Dans le cadre d'un appel direct
   - Dans le cadre d'un event dynamodb
   - Dans le cadre d'un event kinesis
   - Dans le cadre d'un event sqs
   - Dans le cadre d'un event sns
-  - Dans le cadre d'un event bridge .......
-  - Quand est t-il des retry sur les destination ?....
+  - Dans le cadre d'un event bridge 
+  - Quand est t-il des retry sur les destination ?
 - Comprendre les mécaniques de DLQ
 - Faire un invoke en mode request/response
 - Faire un invoke en mode async
@@ -133,6 +133,8 @@ L'event mapping est une ressource
   - C'est donc la politique de retry de la lambda qui s'applique
 - Dyanmo stream / Kinesis Stream
   - Le retry est expodentiel et le nombre de retry est défini l'ors de la définition de l'event source mapping, par défaut il est sur infini
+- Dans l'invocation d'une lambda en tant que destination
+  - Cette ci est invoké de manière async c'est comme la lambda de destination qui décide de son retry
 
 #### Sync
 Dans le cadre d'un appel sync le retry n'est pas fait automatiquement par le service lambda.
