@@ -12,6 +12,8 @@
 
 ### Websocket
 
+Vous pouvez utiliser le client https://firecamp.io/
+
 La route peut être selectionner via une route selection expression qui vaut "$request.body.action" par example
 
 Si pas de route vous pouvez implémenter la routeKye "$default" pour catcher les 404.
