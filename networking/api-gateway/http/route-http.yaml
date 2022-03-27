@@ -1,0 +1,30 @@
+Parameters:
+  ApiId:
+    Type: String
+
+Resources:
+  RouteHttp:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref ApiId
+      RouteKey: "POST /bin"
+      Target: !Join
+        - "/"
+        - - "integrations"
+          - !Ref RouteHttpIntegration
+
+  RouteHttpIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref ApiId
+      IntegrationType: HTTP_PROXY
+      IntegrationMethod: POST
+      PayloadFormatVersion: "1.0"
+      IntegrationUri: https://hookb.in/JKa6L878EpUg0l99GNnP
+      RequestParameters:
+        "overwrite:header.lol": "minecraft"
+      ResponseParameters:
+        "200":
+          ResponseParameters:
+            - Source: 429
+              Destination: "overwrite:statuscode"

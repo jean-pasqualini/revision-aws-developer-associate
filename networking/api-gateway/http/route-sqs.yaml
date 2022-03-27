@@ -1,0 +1,25 @@
+Parameters:
+  ApiId:
+    Type: String
+  CredentialsArn:
+    Type: String
+
+Resources:
+  RouteSQS:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref ApiId
+      RouteKey: "POST /send"
+      Target: !Sub [ "integrations/${url}", { url: !Ref RouteSQSIntegration } ]
+
+  RouteSQSIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref ApiId
+      CredentialsArn: !Ref CredentialsArn
+      IntegrationType: AWS_PROXY
+      IntegrationSubtype: SQS-SendMessage
+      PayloadFormatVersion: "1.0"
+      RequestParameters:
+        QueueUrl: "https://sqs.eu-west-3.amazonaws.com/935529178062/revision"
+        MessageBody: "test"

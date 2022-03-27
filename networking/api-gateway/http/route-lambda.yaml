@@ -1,0 +1,50 @@
+Parameters:
+  ApiId:
+    Type: String
+  CredentialsArn:
+    Type: String
+
+Resources:
+  RouteLambda:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref ApiId
+      RouteKey: "GET /lambda"
+      Target: !Sub [ "integrations/${url}", { url: !Ref RouteLambdaIntegration } ]
+
+  RouteLambdaIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref ApiId
+      CredentialsArn: !Ref CredentialsArn
+      PayloadFormatVersion: "1.0"
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !Sub
+        - "arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${arn}/invocations"
+        - { arn: !GetAtt Lambda.Arn }
+
+  LambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal: { Service: "lambda.amazonaws.com" }
+            Action: "sts:AssumeRole"
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+        - "arn:aws:iam::aws:policy/AWSXRayDaemonWriteAccess"
+
+  Lambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      Runtime: nodejs12.x
+      Role: !GetAtt LambdaRole.Arn
+      Handler: index.handler
+      TracingConfig: {Mode: "Active"}
+      Code:
+        ZipFile: |
+          exports.handler = async function(event, context) {
+            return {"statusCode": 200, "body": JSON.stringify({"fromLambda": true})}
+          }

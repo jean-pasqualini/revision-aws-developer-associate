@@ -1,0 +1,3 @@
+- curl -v -d "{}" -X POST https://ltgm6y2oa9.execute-api.eu-west-3.amazonaws.com/bin
+- curl -v -d "{\"MessageBody\":\"a\"}" -X POST https://ltgm6y2oa9.execute-api.eu-west-3.amazonaws.com/send
+- curl -v https://ltgm6y2oa9.execute-api.eu-west-3.amazonaws.com/lambda

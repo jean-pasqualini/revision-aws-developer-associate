@@ -1,0 +1,51 @@
+# https://www.singlestoneconsulting.com/blog/aws-cloudformation-iac-at-enterprise-scale/#:~:text=CloudFormation%20Modules%20allow%20you%20to,Modules%20can%20be%20nested.
+Resources:
+  ApiGateway:
+    Type: AWS::ApiGatewayV2::Api
+    Properties:
+      ProtocolType: HTTP
+      Name: revision-http
+
+  RouteHTTP:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: route-http.yaml
+      Parameters:
+        ApiId: !Ref ApiGateway
+
+  RouteSQS:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: route-sqs.yaml
+      Parameters:
+        ApiId: !Ref ApiGateway
+        CredentialsArn: !GetAtt ApiGatewayIntegration.Arn
+
+  RouteLambda:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: route-lambda.yaml
+      Parameters:
+        ApiId: !Ref ApiGateway
+        CredentialsArn: !GetAtt ApiGatewayIntegration.Arn
+
+  ApiGatewayIntegration:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal: { Service: "apigateway.amazonaws.com" }
+            Action: "sts:AssumeRole"
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/service-role/AWSLambdaRole"
+        - "arn:aws:iam::aws:policy/AmazonSQSFullAccess"
+
+  ApiGatewayStage:
+    Type: AWS::ApiGatewayV2::Stage
+    Properties:
+      ApiId: !Ref ApiGateway
+      AutoDeploy: true
+      Description: prod
+      StageName: $default
