@@ -1,0 +1,50 @@
+Parameters:
+  ApiId:
+    Type: String
+  CredentialsArn:
+    Type: String
+
+Resources:
+  RouteKinesis:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref ApiId
+      RouteKey: "POST /send-kinesis"
+      Target: !Sub [ "integrations/${url}", { url: !Ref RouteKinesisIntegration } ]
+
+  RouteKinesisIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref ApiId
+      CredentialsArn: !Ref CredentialsArn
+      IntegrationType: AWS_PROXY
+      IntegrationSubtype: Kinesis-PutRecord
+      PayloadFormatVersion: "1.0"
+      RequestParameters:
+        StreamName: !Ref Stream
+        Data: "{\"name\":\"dev\"}"
+        PartitionKey: "default"
+
+  Stream:
+    Type: AWS::Kinesis::Stream
+    Properties:
+      Name: RevisionHttpApiStream
+      ShardCount: 1
+
+  Firehose:
+    Type: AWS::KinesisFirehose::DeliveryStream
+    Properties:
+      DeliveryStreamName: log-http-strem
+      DeliveryStreamType: KinesisStreamAsSource
+      KinesisStreamSourceConfiguration:
+        KinesisStreamARN: !GetAtt Stream.Arn
+        RoleARN: "arn:aws:iam::935529178062:role/service-role/KinesisFirehoseServiceRole-KDS-HTP-RtjwD-eu-west-3-1648461148837"
+      HttpEndpointDestinationConfiguration:
+        RetryOptions:
+          DurationInSeconds: 10
+        EndpointConfiguration:
+          Url: https://hookb.in/lJ89RKVeqbUJBNooLQe3
+        S3BackupMode: "FailedDataOnly"
+        S3Configuration:
+          BucketARN: "arn:aws:s3:::backup-firehose-935529178062"
+          RoleARN: "arn:aws:iam::935529178062:role/service-role/KinesisFirehoseServiceRole-KDS-HTP-RtjwD-eu-west-3-1648461148837"

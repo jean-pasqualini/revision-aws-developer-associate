@@ -1,12 +1,15 @@
 Parameters:
   ApiId:
     Type: String
-
+  ApiIntegrationRole:
+    Type: String
 Resources:
   RouteHttp:
     Type: AWS::ApiGatewayV2::Route
     Properties:
       ApiId: !Ref ApiId
+      AuthorizationType: CUSTOM
+      AuthorizerId: !Ref Authorizer
       RouteKey: "POST /bin"
       Target: !Join
         - "/"
@@ -28,3 +31,47 @@ Resources:
           ResponseParameters:
             - Source: 429
               Destination: "overwrite:statuscode"
+
+
+### Authorization
+
+  Authorizer:
+    Type: AWS::ApiGatewayV2::Authorizer
+    Properties:
+      Name: LambdaAuthorizer
+      ApiId: !Ref ApiId
+      AuthorizerType: "REQUEST"
+      IdentitySource: ["$request.header.Auth"]
+      EnableSimpleResponses: true
+      AuthorizerPayloadFormatVersion: "2.0"
+      AuthorizerResultTtlInSeconds: 500
+      AuthorizerUri: !Sub
+        - "arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${arn}/invocations"
+        - {arn: !GetAtt LambdaAuthorization.Arn }
+      AuthorizerCredentialsArn: !Ref ApiIntegrationRole
+
+  LambdaAuthorizationRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal: { Service: "lambda.amazonaws.com" }
+            Action: "sts:AssumeRole"
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+        - "arn:aws:iam::aws:policy/AWSXRayDaemonWriteAccess"
+
+  LambdaAuthorization:
+    Type: AWS::Lambda::Function
+    Properties:
+      Runtime: nodejs12.x
+      Role: !GetAtt LambdaAuthorizationRole.Arn
+      Handler: index.handler
+      TracingConfig: {Mode: "Active"}
+      Code:
+        ZipFile: |
+          exports.handler = async function(event, context) {
+            return {"isAuthorized": true, "context": {}}
+          }

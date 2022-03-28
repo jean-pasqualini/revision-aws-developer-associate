@@ -9,7 +9,7 @@ Resources:
     Type: AWS::ApiGatewayV2::Route
     Properties:
       ApiId: !Ref ApiId
-      RouteKey: "POST /send"
+      RouteKey: "POST /send-sqs"
       Target: !Sub [ "integrations/${url}", { url: !Ref RouteSQSIntegration } ]
 
   RouteSQSIntegration:

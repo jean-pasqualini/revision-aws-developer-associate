@@ -12,6 +12,7 @@ Resources:
       TemplateURL: route-http.yaml
       Parameters:
         ApiId: !Ref ApiGateway
+        ApiIntegrationRole: !GetAtt ApiGatewayIntegration.Arn
 
   RouteSQS:
     Type: AWS::CloudFormation::Stack
@@ -29,6 +30,30 @@ Resources:
         ApiId: !Ref ApiGateway
         CredentialsArn: !GetAtt ApiGatewayIntegration.Arn
 
+  RouteEventBridge:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: route-event-bridge.yaml
+      Parameters:
+        ApiId: !Ref ApiGateway
+        CredentialsArn: !GetAtt ApiGatewayIntegration.Arn
+
+  RouteKinesis:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: route-kinesis.yaml
+      Parameters:
+        ApiId: !Ref ApiGateway
+        CredentialsArn: !GetAtt ApiGatewayIntegration.Arn
+
+  RouteStepFunction:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: route-step-function.yaml
+      Parameters:
+        ApiId: !Ref ApiGateway
+        CredentialsArn: !GetAtt ApiGatewayIntegration.Arn
+
   ApiGatewayIntegration:
     Type: AWS::IAM::Role
     Properties:
@@ -41,6 +66,9 @@ Resources:
       ManagedPolicyArns:
         - "arn:aws:iam::aws:policy/service-role/AWSLambdaRole"
         - "arn:aws:iam::aws:policy/AmazonSQSFullAccess"
+        - "arn:aws:iam::aws:policy/AmazonEventBridgeFullAccess"
+        - "arn:aws:iam::aws:policy/AmazonKinesisFullAccess"
+        - "arn:aws:iam::aws:policy/AWSStepFunctionsFullAccess"
 
   ApiGatewayStage:
     Type: AWS::ApiGatewayV2::Stage

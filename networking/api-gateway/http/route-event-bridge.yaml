@@ -1,0 +1,40 @@
+Parameters:
+  ApiId:
+    Type: String
+  CredentialsArn:
+    Type: String
+
+Resources:
+  RouteEventBridge:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref ApiId
+      RouteKey: "POST /send-event-bridge"
+      Target: !Sub [ "integrations/${url}", { url: !Ref RouteEventBridgeIntegration } ]
+
+  RouteEventBridgeIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref ApiId
+      CredentialsArn: !Ref CredentialsArn
+      IntegrationType: AWS_PROXY
+      IntegrationSubtype: EventBridge-PutEvents
+      PayloadFormatVersion: "1.0"
+      RequestParameters:
+        Source: "darkilliant.revision.http-api"
+        Detail: "{\"a\":1}"
+        DetailType: "send-event"
+
+  EventBridgeRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Description: "log events"
+      # RoleArn: maybe if no log are showned in logroup
+      EventPattern:
+        source: ["darkilliant.revision.http-api"]
+      State: "ENABLED"
+      Targets:
+        - Arn: "arn:aws:logs:eu-west-3:935529178062:log-group:/aws/events/debug"
+          Id: "send-to-log"
+
+

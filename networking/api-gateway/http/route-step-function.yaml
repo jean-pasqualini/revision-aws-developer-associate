@@ -1,0 +1,43 @@
+Parameters:
+  ApiId:
+    Type: String
+  CredentialsArn:
+    Type: String
+
+Resources:
+  RouteStateMachine:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref ApiId
+      AuthorizationType: AWS_IAM
+      RouteKey: "POST /state-machine"
+      Target: !Sub ["integrations/${url}", { url: !Ref RouteStateMachineIntegration }]
+
+  RouteStateMachineIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref ApiId
+      CredentialsArn: !Ref CredentialsArn
+      PayloadFormatVersion: "1.0"
+      IntegrationType: "AWS_PROXY"
+      IntegrationSubtype: "StepFunctions-StartExecution"
+      RequestParameters:
+        StateMachineArn: !Ref StateMachine
+
+  StateMachine:
+    Type: AWS::StepFunctions::StateMachine
+    Properties:
+      StateMachineName: "http-revision-state-machine"
+      StateMachineType: "STANDARD"
+      DefinitionString: |-
+        {
+          "StartAt": "HelloWorld",
+          "States": {
+            "HelloWorld": {
+              "Type": "Pass",
+              "Result": "Hello World!",
+              "End": true
+            }
+          }
+        }
+      RoleArn: "arn:aws:iam::935529178062:role/service-role/StatesExecutionRole-us-east-1"
