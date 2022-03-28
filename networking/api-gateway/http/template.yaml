@@ -5,6 +5,13 @@ Resources:
     Properties:
       ProtocolType: HTTP
       Name: revision-http
+      CorsConfiguration:
+        AllowHeaders:
+          - ABC
+        AllowMethods: ["GET", "POST"]
+        AllowOrigins: ["*"]
+        ExposeHeaders: ["ABC"]
+        MaxAge: 123
 
   RouteHTTP:
     Type: AWS::CloudFormation::Stack

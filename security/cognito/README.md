@@ -20,3 +20,9 @@ https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_elements_pri
 https://www.facebook.com/v13.0/dialog/oauth?client_id=1417574295340505&redirect_uri=https://www.domain.com/login&state={st=state123abc,ds=123456789}
 https://www.domain.com/login?#access_token=EAAUJRrxRBdkBACg5iNegTfneD0sIAHOfHCS6qWgEVDVkZA4UZAOmTNYy0b4Fvxew9PX4S6ZC0M0ijbfdhWKYxp5nZC6KZAYhQJZCZAgZCHcmG7kqTHaU70POHfJinQFZAtyuETtNwZCf2IqZCQgydd1iqhd30ka4VFjpzhdPT2OgBXuzyp2JmEHbMYMeryiVQGY0y74moUBzDnnw1ePvTDG9qvLf7zd2gDw118ZD&data_access_expiration_time=1654975693&expires_in=5507&long_lived_token=EAAUJRrxRBdkBAEIwOmcIlM00gZADzLFfBc7Bh4ZBMwXnouZB8uWC4PCKClbcfmuFMSK2LWeyOKyqEe69cgErooFqfKL9YJ5ZBTQqoZC2PUylgynd45leZCPuSJ2xIiKd0m6fV130CzExvTUlIUdFIgTnNzv8PgYOa8qu8KyZA3LdmFYaRinFZAxZBX3a0NJoxEWKxrPuiBVJfXQZDZD&state=%7Bst%3Dstate123abc%2Cds%3D123456789%7D
 https://jean95130.auth.eu-west-3.amazoncognito.com/login?client_id=1sukanjpfbq6j0hmg299ue6fdu&redirect_uri=https://www.example.com&response_type=token
+
+### Apprentissage
+
+Concernant les app with secret
+- https://gist.github.com/jaymes-bearden/813a3ae973490b5969c6a3dd208f9f20
+- https://www.47lining.com/paas/docs/preview/preview-docs-audience/latest/preview-docs/user-guide/auth/

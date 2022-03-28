@@ -9,6 +9,7 @@ Resources:
     Type: AWS::ApiGatewayV2::Route
     Properties:
       ApiId: !Ref ApiId
+      AuthorizationType: AWS_IAM
       RouteKey: "POST /send-kinesis"
       Target: !Sub [ "integrations/${url}", { url: !Ref RouteKinesisIntegration } ]
 

@@ -5,9 +5,39 @@ Parameters:
     Type: String
 
 Resources:
+  CognitoUserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: http-revision-user-pool
+      MfaConfiguration: "OFF"
+
+  CognitoUserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      DefaultRedirectURI: "https://www.example.com"
+      CallbackURLs: ["https://www.example.com"]
+      GenerateSecret: false
+      UserPoolId: !Ref CognitoUserPool
+      AllowedOAuthFlows: ["implicit"]
+      ExplicitAuthFlows: ["ALLOW_USER_PASSWORD_AUTH", "ALLOW_REFRESH_TOKEN_AUTH"]
+
+  Autorizer:
+    Type: AWS::ApiGatewayV2::Authorizer
+    Properties:
+      ApiId: !Ref ApiId
+      Name: "JWTAuthorizer"
+      AuthorizerResultTtlInSeconds: 0
+      AuthorizerType: "JWT"
+      IdentitySource: ["$request.header.Authorization"]
+      JwtConfiguration:
+        Issuer: !Sub ["https://cognito-idp.${AWS::Region}.amazonaws.com/${id}", {id: !Ref CognitoUserPool}]
+        Audience: [!Ref CognitoUserPoolClient]
+
   RouteSQS:
     Type: AWS::ApiGatewayV2::Route
     Properties:
+      AuthorizationType: "JWT"
+      AuthorizerId: !Ref Autorizer
       ApiId: !Ref ApiId
       RouteKey: "POST /send-sqs"
       Target: !Sub [ "integrations/${url}", { url: !Ref RouteSQSIntegration } ]

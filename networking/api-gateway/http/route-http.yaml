@@ -23,7 +23,7 @@ Resources:
       IntegrationType: HTTP_PROXY
       IntegrationMethod: POST
       PayloadFormatVersion: "1.0"
-      IntegrationUri: https://hookb.in/JKa6L878EpUg0l99GNnP
+      IntegrationUri: https://hookb.in/K3Np9dyYYpUPMK88272X
       RequestParameters:
         "overwrite:header.lol": "minecraft"
       ResponseParameters:
