@@ -84,3 +84,42 @@ Resources:
       AutoDeploy: true
       Description: prod
       StageName: $default
+      DefaultRouteSettings:
+        # The burst limit defines the number of requests your API can handle concurrently. The rate limit defines the number of allowed requests per second.
+        DetailedMetricsEnabled: false
+        ThrottlingBurstLimit: 1
+        ThrottlingRateLimit: 1
+
+  ApiGatewayDNSRecord:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneName: 'flow.playground.treezor.co.'
+      Comment: 'http revision subdomain'
+      Name: 'http-revision.flow.playground.treezor.co'
+      Type: CNAME
+      TTL: 60
+      ResourceRecords:
+        - "www.google.com"
+
+  ApiGatewayACM:
+    DependsOn: ApiGatewayDNSRecord
+    Type: AWS::CertificateManager::Certificate
+    Properties:
+      DomainName: "http-revision.flow.playground.treezor.co"
+      ValidationMethod: "DNS"
+
+  ApiGatewayDomainName:
+    Type: AWS::ApiGatewayV2::DomainName
+    Properties:
+      DomainName: "http-revision.flow.playground.treezor.co"
+      DomainNameConfigurations:
+        - EndpointType: Regional
+          CertificateArn: !Ref ApiGatewayACM
+
+  ApiGatewayApiMapping:
+    Type: AWS::ApiGatewayV2::ApiMapping
+    Properties:
+      ApiId: !Ref ApiGateway
+      DomainName: "http-revision.flow.playground.treezor.co"
+      Stage: !Ref ApiGatewayStage
+

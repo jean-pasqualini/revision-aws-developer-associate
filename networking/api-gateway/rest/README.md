@@ -1,1 +1,1 @@
-- curl https://4mc9hn1ptc.execute-api.eu-west-3.amazonaws.com/production/mock
+- curl -H "x-api-key: FCKGW-RHQQ2-YXRTK-8TG6W-2B7Q8" -X POST https://iac5c6x5se.execute-api.eu-west-3.amazonaws.com/production/mock/200

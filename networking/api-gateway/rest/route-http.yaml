@@ -29,6 +29,7 @@ Resources:
   ApiGatewayMethodMock200:
     Type: AWS::ApiGateway::Method
     Properties:
+      ApiKeyRequired: true
       RestApiId: !Ref ApiId
       ResourceId: !Ref ApiGatewayResourceMock200
       HttpMethod: "POST"

@@ -12,6 +12,27 @@ Resources:
         ApiId: !Ref ApiGateway
         RootResourceId: !GetAtt ApiGateway.RootResourceId
 
+  RouteDynamo:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: route-dynamo.yaml
+      Parameters:
+        ApiId: !Ref ApiGateway
+        RootResourceId: !GetAtt ApiGateway.RootResourceId
+        RoleIntegrationARN: !GetAtt ApiGatewayIntegrationRole.Arn
+
+  ApiGatewayIntegrationRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal: { Service: "apigateway.amazonaws.com" }
+            Action: "sts:AssumeRole"
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess"
+
   # https://stackoverflow.com/questions/41423439/cloudformation-doesnt-deploy-to-api-gateway-stages-on-update
   ApiGatewayDeployment:
     DependsOn: RouteHttp
@@ -38,3 +59,36 @@ Resources:
       ResponseTemplates:
         application/json: |
           {"message":$context.error.messageString, "nature": "internal"}
+
+  ApiGatewayKeys:
+    Type: AWS::ApiGateway::ApiKey
+    Properties:
+      CustomerId: ""
+      Description: "VIP Key"
+      Enabled: true
+      Name: "vip-key"
+      Value: "FCKGW-RHQQ2-YXRTK-8TG6W-2B7Q8"
+
+  ApiGatewayUsagePlan:
+    Type: AWS::ApiGateway::UsagePlan
+    Properties:
+      ApiStages:
+        - ApiId: !Ref ApiGateway
+          Stage: !Ref ApiGatewayStage
+      Description: "VIP Plan"
+      Quota:
+        Limit: 5000
+        Period: MONTH
+      Throttle:
+        BurstLimit: 1
+        RateLimit: 1
+      UsagePlanName: "VIP Plan"
+
+  ApiGatewayUsagePlanKeyRelation:
+    Type: AWS::ApiGateway::UsagePlanKey
+    Properties:
+      KeyId: !Ref ApiGatewayKeys
+      KeyType: API_KEY
+      UsagePlanId: !Ref ApiGatewayUsagePlan
+
+
