@@ -1,0 +1,71 @@
+Parameters:
+  ApiId:
+    Type: String
+  RootResourceId:
+    Type: String
+
+Resources:
+  ApiGatewayResourceMock:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref ApiId
+      PathPart: "mock"
+      ParentId: !Ref RootResourceId
+
+  ApiGatewayResourceMock200:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref ApiId
+      PathPart: "200"
+      ParentId: !Ref ApiGatewayResourceMock
+
+  ApiGatewayResourceMock500:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref ApiId
+      PathPart: "500"
+      ParentId: !Ref ApiGatewayResourceMock
+
+  ApiGatewayMethodMock200:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref ApiId
+      ResourceId: !Ref ApiGatewayResourceMock200
+      HttpMethod: "POST"
+      AuthorizationType: NONE
+      Integration:
+        Type: MOCK
+        TimeoutInMillis: 29000
+        RequestTemplates:
+          application/json: "{\"statusCode\": 200}"
+        IntegrationResponses:
+          - ResponseTemplates:
+              application/json: "{\"message\":\"OK\"}"
+            SelectionPattern: '2\d{2}'
+            StatusCode: 200
+        PassthroughBehavior: WHEN_NO_TEMPLATES
+      MethodResponses:
+        - StatusCode: 200
+
+  ApiGatewayMethodMock500:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref ApiId
+      ResourceId: !Ref ApiGatewayResourceMock500
+      HttpMethod: "POST"
+      AuthorizationType: NONE
+      Integration:
+        Type: MOCK
+        TimeoutInMillis: 29000
+        RequestTemplates:
+          application/json: "{\"statusCode\": 500}"
+        # When no catches the gateway internal response will create the response
+        # {"message":$context.error.messageString, "nature": "internal"}
+        IntegrationResponses:
+          - ResponseTemplates:
+              application/json: "{\"message\":\"OK\"}"
+            SelectionPattern: '500'
+            StatusCode: 500
+        PassthroughBehavior: WHEN_NO_TEMPLATES
+      MethodResponses:
+        - StatusCode: 500

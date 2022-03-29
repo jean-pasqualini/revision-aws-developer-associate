@@ -1,0 +1,17 @@
+[
+  {
+    "op": "replace",
+    "value": "0.0",
+    "path": "/canarySettings/percentTraffic"
+  },
+  {
+    "op": "copy",
+    "from": "/canarySettings/stageVariableOverrides",
+    "path": "/variables"
+  },
+  {
+    "op": "copy",
+    "from": "/canarySettings/deploymentId",
+    "path": "/deploymentId"
+  }
+]

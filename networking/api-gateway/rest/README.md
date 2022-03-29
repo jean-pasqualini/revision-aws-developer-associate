@@ -1,0 +1,1 @@
+- curl https://4mc9hn1ptc.execute-api.eu-west-3.amazonaws.com/production/mock

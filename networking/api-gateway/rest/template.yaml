@@ -1,0 +1,40 @@
+Resources:
+  ApiGateway:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Name: "revision-rest"
+
+  RouteHttp:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: route-http.yaml
+      Parameters:
+        ApiId: !Ref ApiGateway
+        RootResourceId: !GetAtt ApiGateway.RootResourceId
+
+  # https://stackoverflow.com/questions/41423439/cloudformation-doesnt-deploy-to-api-gateway-stages-on-update
+  ApiGatewayDeployment:
+    DependsOn: RouteHttp
+    Type: AWS::ApiGateway::Deployment
+    Properties:
+      RestApiId: !Ref ApiGateway
+
+  ApiGatewayStage:
+    DependsOn: ApiGatewayDeployment
+    Type: AWS::ApiGateway::Stage
+    Properties:
+      RestApiId: !Ref ApiGateway
+      DeploymentId: !Ref ApiGatewayDeployment
+      StageName: production
+      TracingEnabled: true
+      CanarySetting:
+        PercentTraffic: 50
+
+  ApiGatewayInternalResponse:
+    Type: AWS::ApiGateway::GatewayResponse
+    Properties:
+      RestApiId: !Ref ApiGateway
+      ResponseType: DEFAULT_5XX
+      ResponseTemplates:
+        application/json: |
+          {"message":$context.error.messageString, "nature": "internal"}
