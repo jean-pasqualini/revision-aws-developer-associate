@@ -28,11 +28,18 @@ Resources:
       ParentId: !Ref RootResourceId
       PathPart: "dynamo"
 
+  ResourceDynamoId:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref ApiId
+      ParentId: !Ref ResourceDynamo
+      PathPart: "{id}"
+
   ResourceDynamoGetMethod:
     Type: AWS::ApiGateway::Method
     Properties:
       RestApiId: !Ref ApiId
-      ResourceId: !Ref ResourceDynamo
+      ResourceId: !Ref ResourceDynamoId
       HttpMethod: "GET"
       AuthorizationType: "NONE"
       Integration:
@@ -46,24 +53,59 @@ Resources:
             {
               "TableName": "rest-revision",
               "KeyConditionExpression": "CharacterName=:CharacterName",
-              "ExpressionAttributesValues": {":CharacterName":"Mario"}
+              "ExpressionAttributeValues": {":CharacterName":{"S": "$method.request.path.id"}}
             }
         IntegrationResponses:
           - StatusCode: "200"
             ResponseTemplates:
               application/json: |
                 #set($inputRoot = $input.path('$'))
-                {
-                  "music": [
-                    #foreach($field in $inputRoot.Items) {
-                      "character": "$field.CharacterName.S",
-                      "power": "$field.Power.S",
-                      "life": $field.Life.N
-                    }
-                    #if($foreach.hasNext),#end
-                    #end
-                  ]
-                }
+                #if($input.path('$.Count') > 0)
+                  {
+                    "music": [
+                      #foreach($field in $inputRoot.Items) {
+                        "character": "$field.CharacterName.S",
+                        "power": "$field.Power.S",
+                        "life": $field.Life.N
+                      }
+                      #if($foreach.hasNext),#end
+                      #end
+                    ]
+                  }
+                #else
+                  #set($context.responseOverride.status = 404)
+                #end
+      MethodResponses:
+        - StatusCode: "200"
+        - StatusCode: "404"
+
+  ResourceDynamoPostMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref ApiId
+      ResourceId: !Ref ResourceDynamo
+      HttpMethod: "POST"
+      AuthorizationType: "NONE"
+      Integration:
+        Type: "AWS"
+        Credentials: !Ref RoleIntegrationARN
+        IntegrationHttpMethod: POST
+        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:dynamodb:action/PutItem"
+        PassthroughBehavior: WHEN_NO_TEMPLATES
+        RequestTemplates:
+          application/json: |
+            {
+              "TableName": "rest-revision",
+              "Item": {
+                "CharacterName": {"S": "$input.path("$.character")"},
+                "Power": {"S": "TURN"},
+                "Life": {"S": "150"}
+              }
+            }
+        IntegrationResponses:
+          - StatusCode: "200"
+            ResponseTemplates:
+              application/json: "{}"
       MethodResponses:
         - StatusCode: "200"
 

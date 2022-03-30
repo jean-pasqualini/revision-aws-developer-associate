@@ -48,8 +48,8 @@ Resources:
       DeploymentId: !Ref ApiGatewayDeployment
       StageName: production
       TracingEnabled: true
-      CanarySetting:
-        PercentTraffic: 50
+      #CanarySetting:
+      #  PercentTraffic: 50
 
   ApiGatewayInternalResponse:
     Type: AWS::ApiGateway::GatewayResponse

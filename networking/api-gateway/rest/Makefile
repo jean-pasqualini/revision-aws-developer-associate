@@ -19,7 +19,14 @@ delete-stack:
 deploy-canary:
 	aws --profile treezor-playground apigateway create-deployment --rest-api-id iac5c6x5se --stage-name production --description 'Deployed from CLI' --canary-settings percentTraffic=50
 
+deploy-standard:
+	aws --profile treezor-playground apigateway create-deployment --rest-api-id iac5c6x5se --stage-name production --description 'Deployed from CLI'
+
 canary-is-alive:
 	aws --profile treezor-playground apigateway update-stage --rest-api-id iac5c6x5se --stage-name production --patch-operations file://canary-is-alive.json
+
 canary-is-dead:
 	aws --profile treezor-playground apigateway update-stage --rest-api-id iac5c6x5se --stage-name production --patch-operations file://canary-is-dead.json
+
+canary-destroy:
+	aws --profile treezor-playground apigateway update-stage --rest-api-id iac5c6x5se --stage-name production --patch-operations '[{"op":"remove", "path":"/canarySettings"}]'
