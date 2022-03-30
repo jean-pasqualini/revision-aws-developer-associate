@@ -35,6 +35,14 @@ Resources:
       ParentId: !Ref ResourceDynamo
       PathPart: "{id}"
 
+  ResourceCharacterValidator:
+    Type: AWS::ApiGateway::RequestValidator
+    Properties:
+      Name: Validator
+      RestApiId: !Ref ApiId
+      ValidateRequestBody: true
+      ValidateRequestParameters: false
+
   ResourceDynamoGetMethod:
     Type: AWS::ApiGateway::Method
     Properties:
@@ -79,6 +87,22 @@ Resources:
         - StatusCode: "200"
         - StatusCode: "404"
 
+  ResourceCharacterModel:
+    Type: AWS::ApiGateway::Model
+    Properties:
+      Name: Character
+      RestApiId: !Ref ApiId
+      ContentType: application/json
+      Schema:
+        $schema: 'http://json-schema.org/draft-04/schema#'
+        title: Character
+        type: object
+        required: [Character]
+        properties:
+          Character:
+            type: string
+            description: the character name
+
   ResourceDynamoPostMethod:
     Type: AWS::ApiGateway::Method
     Properties:
@@ -86,6 +110,9 @@ Resources:
       ResourceId: !Ref ResourceDynamo
       HttpMethod: "POST"
       AuthorizationType: "NONE"
+      RequestValidatorId: !Ref ResourceCharacterValidator
+      RequestModels:
+        application/json: Character
       Integration:
         Type: "AWS"
         Credentials: !Ref RoleIntegrationARN
@@ -109,3 +136,6 @@ Resources:
       MethodResponses:
         - StatusCode: "200"
 
+Outputs:
+  Debug:
+    Value: !Ref ApiId

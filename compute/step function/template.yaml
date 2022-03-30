@@ -1,0 +1,18 @@
+Resources:
+  StateMachine:
+    Type: AWS::StepFunctions::StateMachine
+    Properties:
+      StateMachineName: "revision-state-machine"
+      StateMachineType: "STANDARD"
+      DefinitionString: |-
+        {
+          "StartAt": "HelloWorld",
+          "States": {
+            "HelloWorld": {
+              "Type": "Pass",
+              "Result": "Hello World!",
+              "End": true
+            }
+          }
+        }
+      RoleArn: "arn:aws:iam::935529178062:role/service-role/StatesExecutionRole-us-east-1"
