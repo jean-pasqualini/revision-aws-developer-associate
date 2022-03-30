@@ -1,0 +1,110 @@
+Parameters:
+  ApiId:
+    Type: String
+  RootResourceId:
+    Type: String
+
+Resources:
+  ApiEcsResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref ApiId
+      ParentId: !Ref RootResourceId
+      PathPart: "ecs"
+
+  ApiEcsMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref ApiId
+      ResourceId: !Ref ApiEcsResource
+      HttpMethod: "GET"
+      AuthorizationType: "NONE"
+      Integration:
+        Type: HTTP_PROXY
+        IntegrationHttpMethod: GET
+        Uri: "https://http-revision-ecs.flow.playground.treezor.co/"
+        PassthroughBehavior: WHEN_NO_MATCH
+        IntegrationResponses:
+          - StatusCode: 200
+
+  EcsCluster:
+    Type: AWS::ECS::Cluster
+    Properties:
+      ClusterName: http-revision-ecs-cluster
+      CapacityProviders:
+        - FARGATE
+        - FARGATE_SPOT
+      DefaultCapacityProviderStrategy:
+        - CapacityProvider: FARGATE
+          Weight: 1
+        - CapacityProvider: FARGATE_SPOT
+          Weight: 1
+
+  EcsAlb:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Name: http-revision-alb
+      Subnets: ["subnet-b0286efd", "subnet-2f3c2646", "subnet-41d6eb3a"]
+      Type: application
+
+  EcsAlbListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+        - TargetGroupArn: !Ref FargateTargetGroup
+          Type: forward
+      LoadBalancerArn: !Ref EcsAlb
+      Port: 80
+      Protocol: HTTP
+
+  # https://mydeveloperplanet.com/2021/10/26/how-to-create-an-aws-cloudformation-fargate-template/
+  EcsTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      RequiresCompatibilities: [ "FARGATE" ]
+      ExecutionRoleArn: "arn:aws:iam::935529178062:role/ecsTaskExecutionRole"
+      NetworkMode: awsvpc
+      Cpu: 256
+      Memory: 512
+      RuntimePlatform:
+        CpuArchitecture: X86_64
+        OperatingSystemFamily: LINUX
+      ContainerDefinitions:
+        - Name: "http-revision"
+          Image: "public.ecr.aws/j8m3b7r0/test935529178062:latest"
+          Memory: 512
+          PortMappings:
+            - ContainerPort: 443
+              Protocol: tcp
+          #EntryPoint: ["/usr/sbin/apache2", "-D", "FOREGROUND"]
+          Essential: True
+
+  EcsTaskService:
+    DependsOn:
+      - EcsAlbListener
+    Type: AWS::ECS::Service
+    Properties:
+      Cluster: !Ref EcsCluster
+      LaunchType: FARGATE
+      TaskDefinition: !Ref EcsTaskDefinition
+      DesiredCount: 1
+      DeploymentController:
+        Type: ECS
+      LoadBalancers:
+        - TargetGroupArn: !Ref FargateTargetGroup
+          ContainerPort: 443
+          ContainerName: http-revision
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: ENABLED
+          Subnets: ["subnet-b0286efd", "subnet-2f3c2646", "subnet-41d6eb3a"]
+
+  FargateTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: FargateTargetGroupHttps
+      VpcId: "vpc-ee8b7486"
+      Protocol: HTTPS
+      Port: 443
+      TargetType: ip
+

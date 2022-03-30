@@ -21,6 +21,14 @@ Resources:
         RootResourceId: !GetAtt ApiGateway.RootResourceId
         RoleIntegrationARN: !GetAtt ApiGatewayIntegrationRole.Arn
 
+  RouteECS:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: route-ecs.yaml
+      Parameters:
+        ApiId: !Ref ApiGateway
+        RootResourceId: !GetAtt ApiGateway.RootResourceId
+
   ApiGatewayIntegrationRole:
     Type: AWS::IAM::Role
     Properties:
@@ -44,6 +52,7 @@ Resources:
     DependsOn: ApiGatewayDeployment
     Type: AWS::ApiGateway::Stage
     Properties:
+      ClientCertificateId: !Ref ApiGatewayClientCertificate
       RestApiId: !Ref ApiGateway
       DeploymentId: !Ref ApiGatewayDeployment
       StageName: production
@@ -90,5 +99,11 @@ Resources:
       KeyId: !Ref ApiGatewayKeys
       KeyType: API_KEY
       UsagePlanId: !Ref ApiGatewayUsagePlan
+
+  # https://docs.aws.amazon.com/fr_fr/apigateway/latest/developerguide/getting-started-client-side-ssl-authentication.html
+  ApiGatewayClientCertificate:
+    Type: AWS::ApiGateway::ClientCertificate
+    Properties:
+      Description: "revision http client certificate"
 
 

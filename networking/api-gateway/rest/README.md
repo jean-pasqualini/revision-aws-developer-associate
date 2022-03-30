@@ -1,4 +1,4 @@
 - curl -H "x-api-key: FCKGW-RHQQ2-YXRTK-8TG6W-2B7Q8" -X POST https://iac5c6x5se.execute-api.eu-west-3.amazonaws.com/production/mock/200
-- curl https://iac5c6x5se.execute-api.eu-west-3.amazonaws.com/production/dynamo/Sonic
-- curl -X POST -d '{"character":"Sonic"}' https://iac5c6x5se.execute-api.eu-west-3.amazonaws.com/production/dynamo
+- _curl https://iac5c6x5se.execute-api.eu-west-3.amazonaws.com/production/dynamo/Sonic_
+- curl -H "Content-Type: application/json" -X POST -d '{"character":"Sonic"}' https://iac5c6x5se.execute-api.eu-west-3.amazonaws.com/production/dynamo
 - curl -H "Content-type: application/json" -X POST -d '{"character":"Sonic"}' https://iac5c6x5se.execute-api.eu-west-3.amazonaws.com/production/dynamo
