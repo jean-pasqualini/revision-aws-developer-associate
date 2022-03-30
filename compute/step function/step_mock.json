@@ -1,0 +1,24 @@
+{
+  "StateMachines": {
+    "Demo": {
+      "TestCases": {
+        "HappyPath": {
+          "LambdaState": "success"
+        }
+      }
+    }
+  },
+  "MockedResponses": {
+    "success": {
+      "0": {
+        "Return": {
+          "StatusCode": 200,
+          "Payload": {
+            "StatusCode": 200,
+            "body": "Hello from lambda"
+          }
+        }
+      }
+    }
+  }
+}
