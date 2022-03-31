@@ -1,6 +1,6 @@
 {
   "StateMachines": {
-    "data_flow": {
+    "lambda": {
       "TestCases": {
         "HappyPath": {
           "LambdaState": "success"

@@ -1,18 +1,34 @@
+Transform: AWS::Serverless-2016-10-31
 Resources:
-  StateMachine:
-    Type: AWS::StepFunctions::StateMachine
+  StepMachineExecutionRole:
+    Type: AWS::IAM::Role
     Properties:
-      StateMachineName: "revision-state-machine"
-      StateMachineType: "STANDARD"
-      DefinitionString: |-
-        {
-          "StartAt": "HelloWorld",
-          "States": {
-            "HelloWorld": {
-              "Type": "Pass",
-              "Result": "Hello World!",
-              "End": true
-            }
-          }
-        }
-      RoleArn: "arn:aws:iam::935529178062:role/service-role/StatesExecutionRole-us-east-1"
+      RoleName: StepFunctionRevisionExecutionRole
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal: { Service: "states.amazonaws.com" }
+            Action: "sts:AssumeRole"
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/service-role/AWSLambdaRole"
+        - "arn:aws:iam::aws:policy/AmazonSQSFullAccess"
+        - "arn:aws:iam::aws:policy/AmazonEventBridgeFullAccess"
+        - "arn:aws:iam::aws:policy/AmazonKinesisFullAccess"
+        - "arn:aws:iam::aws:policy/AWSStepFunctionsFullAccess"
+        - "arn:aws:iam::aws:policy/AWSXRayDaemonWriteAccess"
+
+  StepMachineLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: revision-stepfunction-lambda
+      Runtime: nodejs12.x
+      MemorySize: 128
+      CodeUri: ./src/lambda
+      Handler: index.lambda
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - AWSXRayDaemonWriteAccess
+      Timeout: 6
+      Tracing: "Active"
+

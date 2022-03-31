@@ -1,6 +1,43 @@
 - https://dev.to/vikasgarghb/step-functions-with-localstack-42
+- https://eu-west-3.console.aws.amazon.com/states/home?region=eu-west-3#/visual-editor
+- https://eu-west-3.console.aws.amazon.com/states/home?region=eu-west-3#/simulator
+- amazon/aws-stepfunctions-local
+- avatarnewyork/statelint
 
 ## Apprentisage 
+
+List des erreurs
+- States.ALL
+  - A wildcard that matches any known error name.
+- States.DataLimitExceeded
+  - A States.DataLimitExceeded exception will be thrown for the following:
+    - When the output of a connector is larger than payload size quota.
+    - When the output of a state is larger than payload size quota.
+    - When, after Parameters processing, the input of a state is larger than the payload size quota.
+    - https://docs.aws.amazon.com/step-functions/latest/dg/limits-overview.html
+- States.Runtime
+  - An execution failed due to some exception that could not be processed. Often these are caused by errors at runtime, such as attempting to apply InputPath or OutputPath on a null JSON payload. A States.Runtime error is not retriable, and will always cause the execution to fail. A retry or catch on States.ALL will not catch States.Runtime errors.
+- States.HeartbeatTimeout
+  - A Task state failed to send a heartbeat for a period longer than the HeartbeatSeconds value.
+- States.Timeout
+  - A Task state either ran longer than the TimeoutSeconds value, or failed to send a heartbeat for a period longer than the HeartbeatSeconds value.
+- States.TaskFailed
+  - A Task state failed during the execution. When used in a retry or catch, States.TaskFailed acts as a wildcard that matches any known error name except for States.Timeout.
+- States.Permissions
+  - A Task state failed because it had insufficient privileges to execute the specified code.
+
+Unhandled errors in Lambda are reported as Lambda.Unknown in the error output. These include out-of-memory errors and function timeouts. You can match on Lambda.Unknown, States.ALL, or States.TaskFailed to handle these errors. When Lambda hits the maximum number of invocations, the error is Lambda.TooManyRequestsException. For more information about Lambda Handled and Unhandled errors, see FunctionError in the AWS Lambda Developer Guide.
+
+Retry:
+- ErrorEquals
+- IntervalSeconds
+- MaxAttempts
+- BackoffRate
+
+Fallback states:
+- ErrorEquals
+- Next
+- ResultPath
 
 List des types de state:
 - Pass
@@ -11,6 +48,21 @@ List des types de state:
 - Fail
 - Parallel
 - Map
+
+Examples using Retry and using Catch:
+- Handling a timeout using Retry
+- Handling a failure using Catch
+- Handling a failure using Retry
+
+Intrinsic functions:
+- States.format('Hello, my name is {}', $.name)
+  - Placeholder replace
+- States.StringToJson('{"a": 1}")
+  - Parse json 
+- States.JsonToString($.data)
+  - Print data as json
+- States.Array($.Id)
+  - Create an array from multiple values 
 
 Workflow sur une state:
 - StateInput (obligatoire)

@@ -24,12 +24,22 @@ validate:
 run-mock-step-server:
 	docker-compose up
 
-create-state-machine:
-	aws --profile treezor-playground stepfunctions create-state-machine --endpoint http://localhost:8083 --definition file://machine/${MACHINE}.json --name ${MACHINE} --role-arn "arn:aws:iam::123456789012:role/service-role/LambdaSQSIntegration"
+create-local-state-machine:
+	aws --profile treezor-playground stepfunctions create-state-machine --endpoint http://localhost:8083 --definition file://machine/${MACHINE}.json --name ${MACHINE} --role-arn "arn:aws:iam::935529178062:role/StepFunctionRevisionExecutionRole"
 
-update-state-machine:
-	aws --profile treezor-playground stepfunctions update-state-machine --endpoint http://localhost:8083 --definition file://machine/${MACHINE}.json --state-machine-arn="arn:aws:states:us-east-1:123456789012:stateMachine:${MACHINE}" > /dev/null
+create-aws-state-machine:
+	aws --profile treezor-playground stepfunctions create-state-machine --definition file://machine/${MACHINE}.json --name ${MACHINE} --role-arn "arn:aws:iam::935529178062:role/StepFunctionRevisionExecutionRole"
 
-.PHONY: start-execution
-start-execution: update-state-machine
-	./start-execution ${MACHINE}
+update-local-state-machine:
+	aws --profile treezor-playground stepfunctions update-state-machine --endpoint http://localhost:8083 --definition file://machine/${MACHINE}.json --state-machine-arn="arn:aws:states:eu-west-3:935529178062:stateMachine:${MACHINE}" > /dev/null
+
+update-aws-state-machine:
+	aws --profile treezor-playground stepfunctions update-state-machine --definition file://machine/${MACHINE}.json --state-machine-arn="arn:aws:states:eu-west-3:935529178062:stateMachine:${MACHINE}" > /dev/null
+
+.PHONY: start-local-execution
+start-local-execution: update-local-state-machine
+	./start-local-execution ${MACHINE}
+
+.PHONY: start-aws-execution
+start-aws-execution:
+	./start-aws-execution ${MACHINE}

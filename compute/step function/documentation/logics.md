@@ -1,0 +1,2 @@
+- https://docs.aws.amazon.com/step-functions/latest/dg/sample-map-state.html
+- https://docs.aws.amazon.com/step-functions/latest/dg/amazon-states-language-map-state.html#amazon-states-language-map-state-output

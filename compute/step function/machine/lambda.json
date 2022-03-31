@@ -1,32 +1,115 @@
 {
-  "StartAt": "HelloWorld",
+  "StartAt": "LambdaState",
   "States": {
-    "HelloWorld": {
-      "Type": "Pass",
-      "Result": {
-        "ID": 5
-      },
-      "Next": "LambdaState"
-    },
     "LambdaState": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.case",
+          "StringEquals": "success",
+          "Next": "LambdaSuccessState"
+        },
+        {
+          "Variable": "$.case",
+          "StringEquals": "error",
+          "Next": "LambdaErrorState"
+        },
+        {
+          "Variable": "$.case",
+          "StringEquals": "retry",
+          "Next": "LambdaRetryState"
+        },
+        {
+          "Variable": "$.case",
+          "StringEquals": "timeout_by_state",
+          "Next": "LambdaTimeoutByStateState"
+        },
+        {
+          "Variable": "$.case",
+          "StringEquals": "timeout_by_lambda",
+          "Next": "LambdaTimeoutByLambdaLambda"
+        }
+      ]
+    },
+    "LambdaSuccessState": {
       "Type": "Task",
       "Resource": "arn:aws:states:::lambda:invoke",
-      "OutputPath": "$.TaskResult.Payload",
       "Parameters": {
-        "Payload.$": "$",
-        "FunctionName": "arn:aws:lambda:eu-west-3:935529178062:function:bo_payin_get_lambda:$LATEST"
+        "Payload": {},
+        "FunctionName": "arn:aws:lambda:eu-west-3:935529178062:function:revision-stepfunction-lambda"
       },
-      "ResultSelector": {
-        "Payload": {
-          "OriginalExample.$": "$.Payload.Example",
-          "Example": "Hello from result selector"
-        }
-      },
-      "ResultPath": "$.TaskResult",
-      "Next": "SS"
+      "Retry": [],
+      "End": true
     },
-    "SS": {
-      "Type": "Succeed"
+    "LambdaErrorState": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "Payload": {
+          "case": "error"
+        },
+        "FunctionName": "arn:aws:lambda:eu-west-3:935529178062:function:revision-stepfunction-lambda"
+      },
+      "Retry": [],
+      "End": true
+    },
+    "LambdaTimeoutByStateState": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "TimeoutSeconds": 2,
+      "Parameters": {
+        "Payload": {
+          "case": "sleep",
+          "sleep": 3
+        },
+        "FunctionName": "arn:aws:lambda:eu-west-3:935529178062:function:revision-stepfunction-lambda"
+      },
+      "Catch": [{
+        "ErrorEquals": ["States.TaskFailed", "States.Timeout"],
+        "Next": "EndState"
+      }],
+      "End": true
+    },
+    "LambdaTimeoutByLambdaLambda": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "Payload": {
+          "case": "sleep",
+          "sleep": 8
+        },
+        "FunctionName": "arn:aws:lambda:eu-west-3:935529178062:function:revision-stepfunction-lambda"
+      },
+      "Catch": [{
+        "ErrorEquals": ["States.TaskFailed", "States.Timeout"],
+        "Next": "EndState"
+      }],
+      "End": true
+    },
+    "LambdaRetryState": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "Payload": {
+          "case": "error"
+        },
+        "FunctionName": "arn:aws:lambda:eu-west-3:935529178062:function:revision-stepfunction-lambda"
+      },
+      "Retry": [{
+        "ErrorEquals": ["States.TaskFailed"],
+        "IntervalSeconds": 1,
+        "MaxAttempts": 2,
+        "BackoffRate": 2.0
+      }],
+      "Catch": [{
+        "ErrorEquals": ["States.TaskFailed"],
+        "Next": "EndState"
+      }],
+      "End": true
+    },
+    "EndState": {
+      "Type": "Pass",
+      "End": true
     }
   }
 }

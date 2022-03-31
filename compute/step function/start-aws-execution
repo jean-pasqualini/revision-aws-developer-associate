@@ -1,0 +1,5 @@
+#!/bin/bash
+
+EXECUTION_ID=$(date +%s)
+aws --profile treezor-playground stepfunctions start-execution --input file://./input/$1.json --name ${EXECUTION_ID} --state-machine "arn:aws:states:eu-west-3:935529178062:stateMachine:$1" --query executionArn --output text > /tmp/executionid
+aws --profile treezor-playground stepfunctions get-execution-history --execution-arn "$(cat /tmp/executionid)" > ./output/$1.json

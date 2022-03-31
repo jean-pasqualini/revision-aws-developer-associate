@@ -1,0 +1,41 @@
+{
+  "StartAt": "Choice",
+  "States": {
+    "Choice": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.case",
+          "StringEquals": "test",
+          "Next": "MapState"
+        }
+      ]
+    },
+    "MapState": {
+      "Type": "Map",
+      "ItemsPath": "$.data",
+      "Parameters": {
+        "data": [
+          {"color":  "red"},
+          {"color":  "blue"}
+        ]
+      },
+      "MaxConcurrency": 1,
+      "End": true,
+      "Iterator": {
+        "StartAt": "Start",
+        "States": {
+          "Start": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::lambda:invoke",
+            "Parameters": {
+              "Payload.$":  "$",
+              "FunctionName": "arn:aws:lambda:eu-west-3:935529178062:function:revision-stepfunction-lambda"
+            },
+            "End": true
+          }
+        }
+      }
+    }
+  }
+}
