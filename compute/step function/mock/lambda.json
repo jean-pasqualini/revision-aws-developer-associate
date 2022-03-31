@@ -3,7 +3,7 @@
     "data_flow": {
       "TestCases": {
         "HappyPath": {
-          "OutputTest": "success"
+          "LambdaState": "success"
         }
       }
     }
@@ -12,8 +12,9 @@
     "success": {
       "0": {
         "Return": {
-          "result_payload": {
-            "success": "true"
+          "StatusCode": 200,
+          "Payload": {
+            "Example": "Hello From Lambda"
           }
         }
       }

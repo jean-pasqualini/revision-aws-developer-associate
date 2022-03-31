@@ -23,7 +23,10 @@
         }
       },
       "ResultPath": "$.TaskResult",
-      "End": true
+      "Next": "SS"
+    },
+    "SS": {
+      "Type": "Succeed"
     }
   }
 }

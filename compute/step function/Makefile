@@ -25,13 +25,11 @@ run-mock-step-server:
 	docker-compose up
 
 create-state-machine:
-	aws --profile treezor-playground stepfunctions create-state-machine --endpoint http://localhost:8083 --definition file://step_definition.json --name "Demo" --role-arn "arn:aws:iam::123456789012:role/service-role/LambdaSQSIntegration"
+	aws --profile treezor-playground stepfunctions create-state-machine --endpoint http://localhost:8083 --definition file://machine/${MACHINE}.json --name ${MACHINE} --role-arn "arn:aws:iam::123456789012:role/service-role/LambdaSQSIntegration"
 
 update-state-machine:
-	aws --profile treezor-playground stepfunctions update-state-machine --endpoint http://localhost:8083 --definition file://step_definition.json --state-machine-arn="arn:aws:states:us-east-1:123456789012:stateMachine:Demo"
+	aws --profile treezor-playground stepfunctions update-state-machine --endpoint http://localhost:8083 --definition file://machine/${MACHINE}.json --state-machine-arn="arn:aws:states:us-east-1:123456789012:stateMachine:${MACHINE}" > /dev/null
 
-start-execution:
-	aws --profile treezor-playground stepfunctions start-execution --endpoint http://localhost:8083 --name ${EXECUTION_ID} --state-machine arn:aws:states:us-east-1:123456789012:stateMachine:Demo#HappyPath
-
-history-execution:
-	aws --profile treezor-playground stepfunctions get-execution-history --endpoint http://localhost:8083 --execution-arn arn:aws:states:us-east-1:123456789012:execution:Demo:${EXECUTION_ID}
+.PHONY: start-execution
+start-execution: update-state-machine
+	./start-execution ${MACHINE}
