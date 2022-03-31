@@ -16,6 +16,10 @@ list-stack-events:
 delete-stack:
 	aws --profile treezor-playground cloudformation delete-stack --stack-name $(STACKNAME)
 
+.PHONY: validate
+validate:
+	./validate
+
 # https://docs.aws.amazon.com/step-functions/latest/dg/sfn-local-test-sm-exec.html
 run-mock-step-server:
 	docker-compose up
@@ -23,8 +27,11 @@ run-mock-step-server:
 create-state-machine:
 	aws --profile treezor-playground stepfunctions create-state-machine --endpoint http://localhost:8083 --definition file://step_definition.json --name "Demo" --role-arn "arn:aws:iam::123456789012:role/service-role/LambdaSQSIntegration"
 
+update-state-machine:
+	aws --profile treezor-playground stepfunctions update-state-machine --endpoint http://localhost:8083 --definition file://step_definition.json --state-machine-arn="arn:aws:states:us-east-1:123456789012:stateMachine:Demo"
+
 start-execution:
-	aws --profile treezor-playground stepfunctions start-execution --endpoint http://localhost:8083 --name executionId --state-machine arn:aws:states:us-east-1:123456789012:stateMachine:Demo#HappyPath
+	aws --profile treezor-playground stepfunctions start-execution --endpoint http://localhost:8083 --name ${EXECUTION_ID} --state-machine arn:aws:states:us-east-1:123456789012:stateMachine:Demo#HappyPath
 
 history-execution:
-	aws --profile treezor-playground stepfunctions get-execution-history --endpoint http://localhost:8083 --execution-arn arn:aws:states:us-east-1:123456789012:execution:Demo:executionId
+	aws --profile treezor-playground stepfunctions get-execution-history --endpoint http://localhost:8083 --execution-arn arn:aws:states:us-east-1:123456789012:execution:Demo:${EXECUTION_ID}

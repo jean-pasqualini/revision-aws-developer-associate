@@ -3,7 +3,26 @@
   "States": {
     "HelloWorld": {
       "Type": "Pass",
-      "Result": "Hello World!",
+      "Result": {
+        "ID": 5
+      },
+      "Next": "LambdaState"
+    },
+    "LambdaState": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "OutputPath": "$.TaskResult.Payload",
+      "Parameters": {
+        "Payload.$": "$",
+        "FunctionName": "arn:aws:lambda:eu-west-3:935529178062:function:bo_payin_get_lambda:$LATEST"
+      },
+      "ResultSelector": {
+        "Payload": {
+          "OriginalExample.$": "$.Payload.Example",
+          "Example": "Hello from result selector"
+        }
+      },
+      "ResultPath": "$.TaskResult",
       "End": true
     }
   }

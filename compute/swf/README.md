@@ -1,0 +1,2 @@
+- aws --profile treezor-playground swf register-domain --name test-domain --workflow-execution-retention-period-in-days 1 
+- aws --profile treezor-playground swf register-workflow-type --domain test-domain --name simple-workflow --workflow-version 1.0
