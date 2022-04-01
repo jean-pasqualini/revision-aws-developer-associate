@@ -2,5 +2,5 @@
 
 EXECUTION_ID=$(date +%s)
 cp "./mock/$1.json" ./step_mock.json
-aws --profile treezor-playground stepfunctions start-execution --input file://./input/$1.json --endpoint http://localhost:8083 --name ${EXECUTION_ID} --state-machine "arn:aws:states:us-east-1:123456789012:stateMachine:$1#HappyPath" --query executionArn --output text > /tmp/executionid
+aws --profile treezor-playground stepfunctions start-execution --input file://./input/$1.json --endpoint http://localhost:8083 --name ${EXECUTION_ID} --state-machine "arn:aws:states:eu-west-3:123456789012:stateMachine:$1#HappyPath" --query executionArn --output text > /tmp/executionid
 aws --profile treezor-playground stepfunctions get-execution-history --endpoint http://localhost:8083 --execution-arn "$(cat /tmp/executionid)" > ./output/$1.json

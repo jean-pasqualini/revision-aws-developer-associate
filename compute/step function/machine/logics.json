@@ -7,20 +7,24 @@
         {
           "Variable": "$.case",
           "StringEquals": "test",
-          "Next": "MapState"
+          "Next": "MapInput"
         }
       ]
     },
-    "MapState": {
-      "Type": "Map",
-      "ItemsPath": "$.data",
-      "Parameters": {
+    "MapInput": {
+      "Type": "Pass",
+      "Result": {
         "data": [
           {"color":  "red"},
           {"color":  "blue"}
         ]
       },
-      "MaxConcurrency": 1,
+      "Next": "MapState"
+    },
+    "MapState": {
+      "Type": "Map",
+      "ItemsPath": "$.data",
+      "MaxConcurrency": 0,
       "End": true,
       "Iterator": {
         "StartAt": "Start",

@@ -4,6 +4,7 @@ services:
     image: amazon/aws-stepfunctions-local
     environment:
       SFN_MOCK_CONFIG: "/home/StepFunctionsLocal/MockConfigFile.json"
+    env_file: .env
     ports:
       - "8083:8083"
     volumes:

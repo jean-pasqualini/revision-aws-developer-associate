@@ -1,23 +1,10 @@
 {
   "StateMachines": {
-    "lambda": {
+    "logics": {
       "TestCases": {
-        "HappyPath": {
-          "LambdaState": "success"
-        }
+        "HappyPath": {}
       }
     }
   },
-  "MockedResponses": {
-    "success": {
-      "0": {
-        "Return": {
-          "StatusCode": 200,
-          "Payload": {
-            "Example": "Hello From Lambda"
-          }
-        }
-      }
-    }
-  }
+  "MockedResponses": {}
 }

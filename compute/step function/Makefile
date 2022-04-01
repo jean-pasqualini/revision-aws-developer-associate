@@ -31,7 +31,7 @@ create-aws-state-machine:
 	aws --profile treezor-playground stepfunctions create-state-machine --definition file://machine/${MACHINE}.json --name ${MACHINE} --role-arn "arn:aws:iam::935529178062:role/StepFunctionRevisionExecutionRole"
 
 update-local-state-machine:
-	aws --profile treezor-playground stepfunctions update-state-machine --endpoint http://localhost:8083 --definition file://machine/${MACHINE}.json --state-machine-arn="arn:aws:states:eu-west-3:935529178062:stateMachine:${MACHINE}" > /dev/null
+	aws --profile treezor-playground stepfunctions update-state-machine --endpoint http://localhost:8083 --definition file://machine/${MACHINE}.json --state-machine-arn="arn:aws:states:eu-west-3:123456789012:stateMachine:${MACHINE}" > /dev/null
 
 update-aws-state-machine:
 	aws --profile treezor-playground stepfunctions update-state-machine --definition file://machine/${MACHINE}.json --state-machine-arn="arn:aws:states:eu-west-3:935529178062:stateMachine:${MACHINE}" > /dev/null

@@ -1,7 +1,9 @@
 {
   "StateMachines": {
     "logics": {
-      "TestCases": {}
+      "TestCases": {
+        "HappyPath": {}
+      }
     }
   },
   "MockedResponses": {}
