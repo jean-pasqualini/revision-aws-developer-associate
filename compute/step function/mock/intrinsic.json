@@ -4,7 +4,9 @@
       "TestCases": {
         "HappyPath": {
           "ParseJson": "ParseJson",
-          "DumpJson": "DumpJson"
+          "DumpJson": "DumpJson",
+          "Format": "Format",
+          "Array": "Array"
         }
       }
     }
@@ -18,6 +20,20 @@
     "DumpJson": {
       "0": {
         "Return": {"a":1}
+      }
+    },
+    "Format": {
+      "0": {
+        "Return": {
+          "name": "Paul"
+        }
+      }
+    },
+    "Array": {
+      "0": {
+        "Return": {
+          "color": "red"
+        }
       }
     }
   }

@@ -11,6 +11,11 @@
         },
         {
           "Variable": "$.case",
+          "StringEquals": "simple_success",
+          "Next": "LambdaSimpleSuccessState"
+        },
+        {
+          "Variable": "$.case",
           "StringEquals": "error",
           "Next": "LambdaErrorState"
         },
@@ -37,6 +42,15 @@
       "Parameters": {
         "Payload": {},
         "FunctionName": "arn:aws:lambda:eu-west-3:935529178062:function:revision-stepfunction-lambda"
+      },
+      "Retry": [],
+      "End": true
+    },
+    "LambdaSimpleSuccessState": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:eu-west-3:935529178062:function:revision-stepfunction-lambda",
+      "Parameters": {
+        "Payload": {}
       },
       "Retry": [],
       "End": true

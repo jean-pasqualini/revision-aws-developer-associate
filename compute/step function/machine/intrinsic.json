@@ -13,8 +13,42 @@
           "Variable": "$.case",
           "StringEquals": "dump_json",
           "Next": "DumpJson"
+        },
+        {
+          "Variable": "$.case",
+          "StringEquals": "format",
+          "Next": "Format"
+        },
+        {
+          "Variable": "$.case",
+          "StringEquals": "array",
+          "Next": "Array"
         }
       ]
+    },
+    "Format": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "Payload": "",
+        "FunctionName": "arn:aws:lambda:eu-west-3:935529178062:function:format"
+      },
+      "ResultSelector": {
+        "result.$": "States.Format('Hello, my name is {}.', $.name)"
+      },
+      "End": true
+    },
+    "Array": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "Payload": "",
+        "FunctionName": "arn:aws:lambda:eu-west-3:935529178062:function:array"
+      },
+      "ResultSelector": {
+        "result.$": "States.Array($.color)"
+      },
+      "End": true
     },
     "ParseJson": {
       "Type": "Task",

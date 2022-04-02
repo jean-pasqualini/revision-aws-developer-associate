@@ -1,0 +1,14 @@
+{
+  "StartAt": "GetDynamo",
+  "States": {
+    "GetDynamo": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::dynamodb:getItem",
+      "Parameters": {
+        "TableName": "revision-step-function",
+        "Key": {"CharacterName": {"S" : "Mario" }}
+      },
+      "End": true
+    }
+  }
+}

@@ -1,5 +1,18 @@
 Transform: AWS::Serverless-2016-10-31
 Resources:
+  DynamoTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: revision-step-function
+      AttributeDefinitions:
+      - AttributeName: CharacterName
+        AttributeType: S
+      KeySchema:
+      - AttributeName: CharacterName
+        KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: '5'
+        WriteCapacityUnits: '5'
   StepMachineExecutionRole:
     Type: AWS::IAM::Role
     Properties:
@@ -15,6 +28,7 @@ Resources:
       - arn:aws:iam::aws:policy/service-role/AWSLambdaRole
       - arn:aws:iam::aws:policy/AmazonSQSFullAccess
       - arn:aws:iam::aws:policy/AmazonEventBridgeFullAccess
+      - arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess
       - arn:aws:iam::aws:policy/AmazonKinesisFullAccess
       - arn:aws:iam::aws:policy/AWSStepFunctionsFullAccess
       - arn:aws:iam::aws:policy/AWSXRayDaemonWriteAccess
@@ -24,10 +38,19 @@ Resources:
       FunctionName: revision-stepfunction-lambda
       Runtime: nodejs12.x
       MemorySize: 128
-      CodeUri: s3://revision-935529178062-cloudformation/0be0879ceb57f0dcaebc9a36a1916b9c
+      CodeUri: s3://revision-935529178062-cloudformation/8dc849e483ddbbc182c79ea9cff0c16f
       Handler: index.lambda
       Policies:
       - AWSLambdaBasicExecutionRole
       - AWSXRayDaemonWriteAccess
       Timeout: 6
       Tracing: Active
+  SQSQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: RevisionStepFunctionQueue
+Outputs:
+  QueueURL:
+    Description: URL Queue
+    Value:
+      Ref: SQSQueue
