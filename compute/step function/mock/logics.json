@@ -2,9 +2,20 @@
   "StateMachines": {
     "logics": {
       "TestCases": {
-        "HappyPath": {}
+        "HappyPath": {
+          "Start": "success"
+        }
       }
     }
   },
-  "MockedResponses": {}
+  "MockedResponses": {
+    "success": {
+      "0" : {
+        "Return": {
+          "StatusCode": 200,
+          "Payload": "my result"
+        }
+      }
+    }
+  }
 }

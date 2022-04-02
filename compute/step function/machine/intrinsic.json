@@ -1,0 +1,44 @@
+{
+  "StartAt": "Choice",
+  "States": {
+    "Choice": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.case",
+          "StringEquals": "parse_json",
+          "Next": "ParseJson"
+        },
+        {
+          "Variable": "$.case",
+          "StringEquals": "dump_json",
+          "Next": "DumpJson"
+        }
+      ]
+    },
+    "ParseJson": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "Payload": "",
+        "FunctionName": "arn:aws:lambda:eu-west-3:935529178062:function:parsejson"
+      },
+      "ResultSelector": {
+        "result.$": "States.StringToJson($)"
+      },
+      "End": true
+    },
+    "DumpJson": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "Payload": "",
+        "FunctionName": "arn:aws:lambda:eu-west-3:935529178062:function:dumpjson"
+      },
+      "ResultSelector": {
+        "result.$": "States.JsonToString($)"
+      },
+      "End": true
+    }
+  }
+}

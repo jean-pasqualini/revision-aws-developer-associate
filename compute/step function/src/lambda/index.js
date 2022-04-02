@@ -6,11 +6,17 @@ exports.lambda = async function (event, context) {
         await useCaseSleep(3 * 1000)
         useCaseError()
     }
+
     if(event.case === "error") {
         useCaseError()
     }
+
     if(event.case === "sleep") {
         await useCaseSleep(event.sleep * 1000)
+    }
+
+    if(event.case === "map") {
+        return "my color is " + event.color;
     }
 
     return {"fromLambda": true, "version": "v3"}

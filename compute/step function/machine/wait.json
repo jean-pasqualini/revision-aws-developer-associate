@@ -1,0 +1,11 @@
+{
+  "StartAt": "Wait",
+  "TimeoutSeconds": 2,
+  "States": {
+    "Wait": {
+      "Type": "Wait",
+      "Seconds": 4,
+      "End": true
+    }
+  }
+}

@@ -6,34 +6,82 @@
       "Choices": [
         {
           "Variable": "$.case",
-          "StringEquals": "test",
+          "StringEquals": "map",
           "Next": "MapInput"
+        },
+        {
+          "Variable": "$.case",
+          "StringEquals": "parallel",
+          "Next": "ParallelInput"
         }
       ]
     },
     "MapInput": {
       "Type": "Pass",
-      "Result": {
-        "data": [
-          {"color":  "red"},
-          {"color":  "blue"}
-        ]
-      },
+      "Result": {"colors": ["green", "blue"]},
       "Next": "MapState"
+    },
+    "ParallelInput": {
+      "Type": "Pass",
+      "Result": {},
+      "Next": "ParallelState"
+    },
+    "ParallelState": {
+      "Type": "Parallel",
+      "End": true,
+      "Branches": [
+        {
+          "StartAt": "LookupAddress",
+          "States": {
+            "LookupAddress": {
+              "Type": "Pass",
+              "Result": "loookup address",
+              "End": true
+            }
+          }
+        },
+        {
+          "StartAt": "LookupPhone",
+          "States": {
+            "LookupPhone": {
+              "Type": "Pass",
+              "Result": "lookup phone",
+              "End": true
+            }
+          }
+        },
+        {
+          "StartAt": "Fail",
+          "States": {
+            "Fail": {
+              "Type": "Fail"
+            }
+          }
+        }
+      ]
     },
     "MapState": {
       "Type": "Map",
-      "ItemsPath": "$.data",
       "MaxConcurrency": 0,
+      "ItemsPath": "$.colors",
       "End": true,
+      "Parameters": {
+        "color.$": "$$.Map.Item.Value",
+        "case": "map"
+      },
       "Iterator": {
         "StartAt": "Start",
         "States": {
           "Start": {
             "Type": "Task",
             "Resource": "arn:aws:states:::lambda:invoke",
+            "OutputPath": "$.Payload",
             "Parameters": {
-              "Payload.$":  "$",
+              "Payload":  {
+                "color.$": "$.color",
+                "case.$": "$.case",
+                "debug": true
+              },
               "FunctionName": "arn:aws:lambda:eu-west-3:935529178062:function:revision-stepfunction-lambda"
             },
             "End": true

@@ -1,0 +1,10 @@
+{
+  "StateMachines": {
+    "wait": {
+      "TestCases": {
+        "HappyPath": {}
+      }
+    }
+  },
+  "MockedResponses": {}
+}

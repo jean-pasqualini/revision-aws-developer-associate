@@ -24,7 +24,7 @@ Resources:
       FunctionName: revision-stepfunction-lambda
       Runtime: nodejs12.x
       MemorySize: 128
-      CodeUri: s3://revision-935529178062-cloudformation/4dd6dda1497cd5db6dd2827138b1c336
+      CodeUri: s3://revision-935529178062-cloudformation/0be0879ceb57f0dcaebc9a36a1916b9c
       Handler: index.lambda
       Policies:
       - AWSLambdaBasicExecutionRole
