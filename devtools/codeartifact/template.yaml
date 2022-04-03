@@ -1,0 +1,21 @@
+Resources:
+  # https://aws.amazon.com/blogs/devops/publishing-private-npm-packages-aws-codeartifact/
+  ArtifactDomain:
+    Type: AWS::CodeArtifact::Domain
+    Properties:
+      DomainName: revision
+  # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-codeartifact-repository.html
+  ArtifactRepository:
+    Type: AWS::CodeArtifact::Repository
+    Properties:
+      RepositoryName: "revision-artifact"
+      DomainName: !GetAtt ArtifactDomain.Name
+      Upstreams:
+        - !GetAtt UpstreamArtifactRepository.Name
+  UpstreamArtifactRepository:
+    Type: AWS::CodeArtifact::Repository
+    Properties:
+      RepositoryName: "revision-upstream-artifact"
+      DomainName: !GetAtt ArtifactDomain.Name
+      ExternalConnections:
+        - public:npmjs

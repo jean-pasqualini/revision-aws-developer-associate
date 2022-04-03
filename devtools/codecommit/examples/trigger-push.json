@@ -1,0 +1,12 @@
+{
+  "Type" : "Notification",
+  "MessageId" : "dd922dec-061c-5743-9822-772fa11ce6e9",
+  "TopicArn" : "arn:aws:sns:eu-west-3:935529178062:revision-topic",
+  "Subject" : "UPDATE: AWS CodeCommit eu-west-3 push: revision",
+  "Message" : "{\"Records\":[{\"awsRegion\":\"eu-west-3\",\"codecommit\":{\"references\":[{\"commit\":\"0bd5e2dce2acc4246268b321f91ea8eef055f117\",\"created\":true,\"ref\":\"refs/heads/master\"}]},\"customData\":\"message by trigger\",\"eventId\":\"468fe2d5-5c9d-4cf5-b18d-5296a7bdfc89\",\"eventName\":\"ReferenceChanges\",\"eventPartNumber\":1,\"eventSource\":\"aws:codecommit\",\"eventSourceARN\":\"arn:aws:codecommit:eu-west-3:935529178062:revision\",\"eventTime\":\"2022-04-03T13:44:32.920+0000\",\"eventTotalParts\":1,\"eventTriggerConfigId\":\"22b735af-e054-48f1-b548-2c394a277037\",\"eventTriggerName\":\"sample-trigger\",\"eventVersion\":\"1.0\",\"userIdentityARN\":\"arn:aws:iam::935529178062:user/jean.pasqualini\"}]}",
+  "Timestamp" : "2022-04-03T13:44:32.962Z",
+  "SignatureVersion" : "1",
+  "Signature" : "Q9SdlQZgxKr8TVWvswKVKcIehLfB16xeYWXz+PTttD7NMW8V2aeoQv+Zswhio9XIsP0G+/0svjbH1i46uca9nHGzfNdbrQE+iN24tn7sZysSFM4pDeYr/aT3DyiYMxtsGfAWq/yw3e8LdeOVrSYAFljr1JfurzbxQBXqs4Gm28aG238su1dbNUpwGYmoPXF7Q0TPBE5CuG1h82uH9PSvZW9Gs0Moag2QzTh1/p8OGCtoI6PwsP02wwyOV1H1Ke6vA4DqEeOrPYA/8Ko7EWT2q0bNKHFkvbuWUubQMJT+sPSYqPeS1Y9106hOVh/I8g9PLHetHFgKqKS8vf0uhm4EaA==",
+  "SigningCertURL" : "https://sns.eu-west-3.amazonaws.com/SimpleNotificationService-7ff5318490ec183fbaddaa2a969abfda.pem",
+  "UnsubscribeURL" : "https://sns.eu-west-3.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:eu-west-3:935529178062:revision-topic:088079f8-9940-4e52-a5ea-1de59f08dad2"
+}

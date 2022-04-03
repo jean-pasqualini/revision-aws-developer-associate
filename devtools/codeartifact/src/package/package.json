@@ -1,0 +1,19 @@
+{
+  "name": "@darkilliant/package",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "login": "aws --profile treezor-playground codeartifact login --tool npm --repository revision-artifact --domain revision --domain-owner 935529178062",
+    "login-upstream": "aws --profile treezor-playground codeartifact login --tool npm --repository revision-upstream-artifact --domain revision --domain-owner 935529178062",
+    "publish": "npm publish",
+    "test-proxy": "npm i --save lodash"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "lodash": "^4.17.21"
+  }
+}

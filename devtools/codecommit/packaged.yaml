@@ -1,0 +1,52 @@
+Resources:
+  Repository:
+    Type: AWS::CodeCommit::Repository
+    Properties:
+      RepositoryName: revision
+      RepositoryDescription: an repository used for revision
+      Triggers:
+      - Name: sample-trigger
+        CustomData: message by trigger
+        DestinationArn:
+          Ref: SNS
+        Events:
+        - all
+  NotificationRule:
+    Type: AWS::CodeStarNotifications::NotificationRule
+    Properties:
+      Name: notif rule
+      DetailType: FULL
+      Resource:
+        Fn::GetAtt:
+        - Repository
+        - Arn
+      EventTypeIds:
+      - codecommit-repository-comments-on-pull-requests
+      - codecommit-repository-pull-request-created
+      Targets:
+      - TargetType: SNS
+        TargetAddress:
+          Ref: SNS
+  SNS:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: revision-topic
+      DisplayName: revision-tomic-display
+      Subscription:
+      - Endpoint: jpasqualini75@gmail.com
+        Protocol: email-json
+  SNSPolicy:
+    Type: AWS::SNS::TopicPolicy
+    Properties:
+      Topics:
+      - Ref: SNS
+      PolicyDocument:
+        Version: '2008-10-17'
+        Statement:
+        - Sid: CodeNotification_publish
+          Effect: Allow
+          Principal:
+            Service: codestar-notifications.amazonaws.com
+          Action: SNS:Publish
+          Resource:
+            Ref: SNS

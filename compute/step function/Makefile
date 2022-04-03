@@ -31,7 +31,7 @@ delete-local-state-machine:
 	aws --profile treezor-playground stepfunctions delete-state-machine --endpoint http://localhost:8083 --state-machine-arn="arn:aws:states:eu-west-3:123456789012:stateMachine:${MACHINE}"
 
 create-aws-state-machine:
-	aws --profile treezor-playground stepfunctions create-state-machine --definition file://machine/${MACHINE}.json --name ${MACHINE} --role-arn "arn:aws:iam::935529178062:role/StepFunctionRevisionExecutionRole"
+	aws --profile treezor-playground stepfunctions create-state-machine --definition file://machine/${MACHINE}.json --type ${TYPE} --name ${MACHINE} --role-arn "arn:aws:iam::935529178062:role/StepFunctionRevisionExecutionRole"
 
 delete-aws-state-machine:
 	aws --profile treezor-playground stepfunctions delete-state-machine --state-machine-arn="arn:aws:states:eu-west-3:935529178062:stateMachine:${MACHINE}"

@@ -3,7 +3,7 @@
   "States": {
     "Wait": {
       "Type": "Wait",
-      "Seconds": 2,
+      "Seconds": 350,
       "End": true
     }
   }

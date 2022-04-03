@@ -1,0 +1,27 @@
+Resources:
+  ArtifactDomain:
+    Type: AWS::CodeArtifact::Domain
+    Properties:
+      DomainName: revision
+  ArtifactRepository:
+    Type: AWS::CodeArtifact::Repository
+    Properties:
+      RepositoryName: revision-artifact
+      DomainName:
+        Fn::GetAtt:
+        - ArtifactDomain
+        - Name
+      Upstreams:
+      - Fn::GetAtt:
+        - UpstreamArtifactRepository
+        - Name
+  UpstreamArtifactRepository:
+    Type: AWS::CodeArtifact::Repository
+    Properties:
+      RepositoryName: revision-upstream-artifact
+      DomainName:
+        Fn::GetAtt:
+        - ArtifactDomain
+        - Name
+      ExternalConnections:
+      - public:npmjs
