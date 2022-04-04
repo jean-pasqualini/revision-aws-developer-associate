@@ -14,3 +14,10 @@ deploiement mode:
   - EC2/onpremise
   - AWS Lambda or ECS
   - Through AWS CloudFormation
+
+## References
+- sudo aws deploy install --region eu-west-3 --config-file /home/darkilliant/codedeploy.onpremises.yml
+- aws --profile treezor-playground deploy register --instance-name MyComputer --region eu-west-3
+- wget https://aws-codedeploy-eu-west-3.s3.eu-west-3.amazonaws.com/latest/install 
+- https://docs.aws.amazon.com/codedeploy/latest/userguide/reference-appspec-file-example.html
+- https://docs.aws.amazon.com/codedeploy/latest/userguide/deployments-view-logs.html

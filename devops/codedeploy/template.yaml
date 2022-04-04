@@ -1,0 +1,36 @@
+Resources:
+  #arn:aws:iam::935529178062:role/cdservicerole
+  Role:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: "codedeploy-revision"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: ""
+            Effect: Allow
+            Principal: { Service: ["codedeploy.amazonaws.com"] }
+            Action: ["sts:AssumeRole"]
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/service-role/AWSCodeDeployRole"
+        - "arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess"
+
+  # https://stelligent.com/2016/01/15/automating-aws-codedeploy-provisioning-in-cloudformation/
+  Deployment:
+    Type: AWS::CodeDeploy::DeploymentGroup
+    Properties:
+      ApplicationName: "test"
+      Deployment:
+        Description: A sample deploy
+        IgnoreApplicationStopFailures: true
+        Revision:
+          RevisionType: S3
+          S3Location:
+            Bucket: "revision-codebuild-935529178062"
+            BundleType: Zip
+            Key: "codedeploy-onpremise.zip"
+      OnPremisesInstanceTagFilters:
+        - Key: ManagedByCD
+          Value: true
+          Type: KEY_AND_VALUE
+      ServiceRoleArn: !GetAtt Role.Arn
