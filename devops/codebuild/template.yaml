@@ -13,6 +13,21 @@ Resources:
         - "arn:aws:iam::aws:policy/CloudWatchLogsFullAccess"
         - "arn:aws:iam::aws:policy/AmazonS3FullAccess"
         - "arn:aws:iam::aws:policy/AWSCodeBuildAdminAccess"
+        - "arn:aws:iam::aws:policy/AWSCodeCommitReadOnly"
+
+  # https://docs.aws.amazon.com/dtconsole/latest/userguide/concepts.html#concepts-api
+  NotificationRule:
+    Type: AWS::CodeStarNotifications::NotificationRule
+    Properties:
+      Name: codebuildrule
+      DetailType: FULL
+      EventTypeIds:
+        - "codebuild-project-build-state-succeeded"
+      Resource: !GetAtt Project.Arn
+      Status: ENABLED
+      Targets:
+        - TargetType: SNS
+          TargetAddress: "arn:aws:sns:eu-west-3:935529178062:revision-topic"
 
   Project:
     Type: AWS::CodeBuild::Project
@@ -21,6 +36,9 @@ Resources:
       ConcurrentBuildLimit: 1
       Description: revision code build
       ServiceRole: !Ref ServiceRole
+      #Triggers:
+      #  BuildType: BUILD
+      #  Webhook: true
       LogsConfig:
         CloudWatchLogs:
           GroupName: "codebuild"
@@ -36,5 +54,7 @@ Resources:
         ComputeType: BUILD_GENERAL1_SMALL
         Image: aws/codebuild/standard:5.0
       Source:
-        Type: S3
-        Location: revision-codebuild-935529178062/src/
+        Type: CODECOMMIT
+        Location: https://git-codecommit.eu-west-3.amazonaws.com/v1/repos/revision
+        #Type: S3
+        #Location: revision-codebuild-935529178062/src/
