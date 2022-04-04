@@ -1,0 +1,59 @@
+version: 0.2
+
+env:
+  variables:
+    laboratoire: "souris"
+  #parameter-store:
+     # key: "value"
+     # key: "value"
+  #secrets-manager:
+     # key: secret-id:json-key:version-stage:version-id
+     # key: secret-id:json-key:version-stage:version-id
+  #exported-variables:
+     # - variable
+     # - variable
+  #git-credential-helper: yes
+#batch:
+  #fast-fail: true
+  #build-list:
+  #build-matrix:
+  #build-graph:
+phases:
+  install:
+    #If you use the Ubuntu standard image 2.0 or later, you must specify runtime-versions.
+    #If you specify runtime-versions and use an image other than Ubuntu standard image 2.0, the build fails.
+    #runtime-versions:
+      # name: version
+      # name: version
+    commands:
+      #- yum update -y
+      #- yum install -y nano
+      - GO111MODULE=on go get github.com/jstemmer/go-junit-report@latest
+  pre_build:
+    commands:
+      - go version
+  build:
+    commands:
+      - go build -o ./my-app -- main.go
+      - go test -v 2>&1 | go-junit-report > report.xml
+      # - command
+  post_build:
+    commands:
+      - pwd
+      - ls -al
+reports:
+  report-demo:
+    files:
+      - report.xml
+    #base-directory: location
+    #discard-paths: yes
+    file-format: JunitXml # | CucumberJson
+artifacts:
+  files:
+     - ./my-app
+  #name: $(date +%Y-%m-%d)
+  #discard-paths: yes
+  #base-directory: location
+#cache:
+  #paths:
+    # - paths
