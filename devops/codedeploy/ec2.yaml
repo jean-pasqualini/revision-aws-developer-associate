@@ -20,6 +20,26 @@ Resources:
           Type: KEY_AND_VALUE
       ServiceRoleArn: !Ref ServiceRoleArn
 
+  InstanceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Path: /revision/
+      RoleName: RevisionDeployRole
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal: { Service: ["codedeploy.amazonaws.com","ec2.amazonaws.com"] }
+            Action: ["sts:AssumeRole"]
+      ManagedPolicyArns: ["arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforAWSCodeDeploy"]
+
+  InstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      InstanceProfileName: revision-deploy-ip
+      Path: /revision/
+      Roles: [!Ref InstanceRole]
+
   # https://aws.amazon.com/fr/premiumsupport/knowledge-center/install-codedeploy-agent-cfn-init/
   # https://linuxtut.com/en/8ff718cd1e66778f88b5/
   Instance:
@@ -45,7 +65,7 @@ Resources:
     Properties:
       InstanceType: t2.micro
       ImageId: "ami-0c6ebbd55ab05f070"
-      #IamInstanceProfile: ""
+      IamInstanceProfile: !Ref InstanceProfile
       #KeyName: ""
       UserData:
         Fn::Base64: !Sub |

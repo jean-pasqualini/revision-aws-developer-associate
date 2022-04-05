@@ -6,8 +6,8 @@ package:
 create-stack: package
 	aws --profile treezor-playground cloudformation create-stack --stack-name $(STACKNAME) --template-body file://packaged.yaml --capabilities CAPABILITY_NAMED_IAM
 
-update-stack: package
-	aws --profile treezor-playground cloudformation update-stack --stack-name $(STACKNAME) --disable-rollback --template-body file://packaged.yaml --capabilities CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND
+update-stack: package # --disable-rollback
+	aws --profile treezor-playground cloudformation update-stack --stack-name $(STACKNAME) --template-body file://packaged.yaml --capabilities CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND
 	aws --profile treezor-playground cloudformation wait stack-update-complete --stack-name $(STACKNAME)
 
 create-source-bucket:
