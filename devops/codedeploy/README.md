@@ -21,3 +21,23 @@ deploiement mode:
 - wget https://aws-codedeploy-eu-west-3.s3.eu-west-3.amazonaws.com/latest/install 
 - https://docs.aws.amazon.com/codedeploy/latest/userguide/reference-appspec-file-example.html
 - https://docs.aws.amazon.com/codedeploy/latest/userguide/deployments-view-logs.html
+- https://docs.aws.amazon.com/codedeploy/latest/userguide/reference-appspec-file-structure-hooks.html
+- 
+## Apprentisages
+
+### Environement variables
+- APPLICATION_NAME
+- DEPLOYMENT_ID
+- DEPLOYMENT_GROUP_NAME
+- DEPLOYMENT_GROUP_ID
+- LIFECYCLE_EVENT
+
+## Scenarios
+
+### InPlace Deploy
+
+![](images/lifecycle-event-order-in-place.png)
+
+### BlueGreen Deploy
+
+![](images/lifecycle-event-order-blue-green.png)

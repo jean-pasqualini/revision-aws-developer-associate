@@ -1,0 +1,61 @@
+Parameters:
+  ServiceRoleArn:
+    Type: String
+
+Resources:
+  Application:
+    Type: AWS::CodeDeploy::Application
+    Properties:
+      ApplicationName: revision-codedeploy-ec2
+      ComputePlatform: Server
+
+  # https://stelligent.com/2016/01/15/automating-aws-codedeploy-provisioning-in-cloudformation/
+  DeploymentApp:
+    Type: AWS::CodeDeploy::DeploymentGroup
+    Properties:
+      ApplicationName: !Ref Application
+      Ec2TagFilters:
+        - Key: ManagedByCD
+          Value: true
+          Type: KEY_AND_VALUE
+      ServiceRoleArn: !Ref ServiceRoleArn
+
+  # https://aws.amazon.com/fr/premiumsupport/knowledge-center/install-codedeploy-agent-cfn-init/
+  # https://linuxtut.com/en/8ff718cd1e66778f88b5/
+  Instance:
+    Type: AWS::EC2::Instance
+    CreationPolicy:
+      ResourceSignal:
+        Timeout: PT10M
+    Metadata:
+      "AWS::CloudFormation::Init":
+        config:
+          packages:
+            apt: { ruby: [] }
+          files:
+            /home/ubuntu/install:
+              source: !Sub "https://aws-codedeploy-${AWS::Region}.s3.amazonaws.com/latest/install"
+              mode: "000755"
+          commands:
+            "00-install-agent":
+              command: "./install auto"
+              cwd: "/home/ubuntu/"
+            "01-cfn-signal":
+              command: !Sub "/opt/aws/bin/cfn-signal -e 0 --stack ${AWS::StackName} --resource Instance --region ${AWS::Region}"
+    Properties:
+      InstanceType: t2.micro
+      ImageId: "ami-0c6ebbd55ab05f070"
+      #IamInstanceProfile: ""
+      #KeyName: ""
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          apt -y update
+          apt -y install python-setuptools wget
+          mkdir -p /opt/aws/bin
+          wget https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-py3-latest.tar.gz
+          python3 -m easy_install --script-dir /opt/aws/bin aws-cfn-bootstrap-py3-latest.tar.gz
+          /opt/aws/bin/cfn-init -v --stack ${AWS::StackName} --region ${AWS::Region} --resource Instance
+      Tags:
+        - Key: ManagedByCD
+          Value: "true"

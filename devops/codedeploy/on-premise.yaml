@@ -1,0 +1,30 @@
+Parameters:
+  ServiceRoleArn:
+    Type: String
+
+Resources:
+  Application:
+    Type: AWS::CodeDeploy::Application
+    Properties:
+      ApplicationName: revision-codedeploy-server
+      ComputePlatform: Server
+
+  # https://stelligent.com/2016/01/15/automating-aws-codedeploy-provisioning-in-cloudformation/
+  DeploymentApp:
+    Type: AWS::CodeDeploy::DeploymentGroup
+    Properties:
+      ApplicationName: !Ref Application
+      Deployment:
+        Description: A sample deploy
+        IgnoreApplicationStopFailures: true
+        Revision:
+          RevisionType: S3
+          S3Location:
+            Bucket: "revision-codebuild-935529178062"
+            BundleType: Zip
+            Key: "codedeploy-onpremise.zip"
+      OnPremisesInstanceTagFilters:
+        - Key: ManagedByCD
+          Value: true
+          Type: KEY_AND_VALUE
+      ServiceRoleArn: !Ref ServiceRoleArn

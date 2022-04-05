@@ -1,0 +1,117 @@
+Parameters:
+  ServiceRoleArn:
+    Type: String
+
+Resources:
+  Application:
+    Type: AWS::CodeDeploy::Application
+    Properties:
+      ApplicationName: revision-codedeploy-lambda
+      ComputePlatform: Lambda
+
+  LambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal: { Service: "lambda.amazonaws.com" }
+            Action: "sts:AssumeRole"
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+        - "arn:aws:iam::aws:policy/AWSXRayDaemonWriteAccess"
+
+  Lambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: "codedeploy-revision-lambda"
+      Runtime: nodejs12.x
+      Role: !GetAtt LambdaRole.Arn
+      Handler: index.handler
+      TracingConfig: {Mode: "Active"}
+      Code:
+        ZipFile: |
+          exports.handler = async function(event, context) {
+            return {"statusCode": 200, "body": JSON.stringify({"fromLambda": true})}
+          }
+
+  DeploymentConfigCustom:
+    Type: AWS::CodeDeploy::DeploymentConfig
+    Properties:
+      ComputePlatform: Lambda
+      DeploymentConfigName: CustomLambda
+      TrafficRoutingConfig:
+        Type: TimeBasedLinear
+        TimeBasedLinear:
+          LinearInterval: 1
+          LinearPercentage: 30
+
+  # For lambda
+  # Only DeployementType: BLUE_GREEN
+  # Only DeploymentOption: WITH_TRAFFIC_CONTROL
+  # Only DeploymentConfigName: CodeDeployDefault.Lambda*
+  DeploymentLambdaAllAtOnce:
+    Type: AWS::CodeDeploy::DeploymentGroup
+    Properties:
+      ApplicationName: !Ref Application
+      ServiceRoleArn: !Ref ServiceRoleArn
+      DeploymentStyle:
+        DeploymentOption: WITH_TRAFFIC_CONTROL # WITH_TRAFFIC_CONTROL | WITHOUT_TRAFFIC_CONTROL
+        DeploymentType: BLUE_GREEN # BLUE_GREEN | IN_PLACE
+      DeploymentConfigName: CodeDeployDefault.LambdaAllAtOnce
+      DeploymentGroupName: DeploymentLambdaAllAtOnce
+
+  DeploymentLambdaCustom:
+    Type: AWS::CodeDeploy::DeploymentGroup
+    Properties:
+      ApplicationName: !Ref Application
+      ServiceRoleArn: !Ref ServiceRoleArn
+      DeploymentStyle:
+        DeploymentOption: WITH_TRAFFIC_CONTROL # WITH_TRAFFIC_CONTROL | WITHOUT_TRAFFIC_CONTROL
+        DeploymentType: BLUE_GREEN # BLUE_GREEN | IN_PLACE
+      DeploymentConfigName: CustomLambda
+      DeploymentGroupName: DeploymentLambdaCustom
+
+  DeploymentLambdaLinear10PercentEvery1Minute:
+    Type: AWS::CodeDeploy::DeploymentGroup
+    Properties:
+      ApplicationName: !Ref Application
+      ServiceRoleArn: !Ref ServiceRoleArn
+      DeploymentStyle:
+        DeploymentOption: WITH_TRAFFIC_CONTROL # WITH_TRAFFIC_CONTROL | WITHOUT_TRAFFIC_CONTROL
+        DeploymentType: BLUE_GREEN # BLUE_GREEN | IN_PLACE
+      DeploymentConfigName: CodeDeployDefault.LambdaLinear10PercentEvery1Minute
+      DeploymentGroupName: DeploymentLambdaLinear10PercentEvery1Minute
+
+  DeploymentLambdaCanary10Percent5Minutes:
+    Type: AWS::CodeDeploy::DeploymentGroup
+    Properties:
+      ApplicationName: !Ref Application
+      ServiceRoleArn: !Ref ServiceRoleArn
+      DeploymentStyle:
+        DeploymentOption: WITH_TRAFFIC_CONTROL # WITH_TRAFFIC_CONTROL | WITHOUT_TRAFFIC_CONTROL
+        DeploymentType: BLUE_GREEN # BLUE_GREEN | IN_PLACE
+      DeploymentConfigName: CodeDeployDefault.LambdaCanary10Percent5Minutes
+      DeploymentGroupName: DeploymentLambdaCanary10Percent5Minutes
+
+
+  # https://stelligent.com/2016/01/15/automating-aws-codedeploy-provisioning-in-cloudformation/
+#  Deployment:
+#    Type: AWS::CodeDeploy::DeploymentGroup
+#    Properties:
+#      ApplicationName: !Ref Application
+#      Deployment:
+#        Description: A sample deploy
+#        IgnoreApplicationStopFailures: true
+#        Revision:
+#          RevisionType: S3
+#          S3Location:
+#            Bucket: "revision-codebuild-935529178062"
+#            BundleType: Zip
+#            Key: "codedeploy-onpremise.zip"
+#      OnPremisesInstanceTagFilters:
+#        - Key: ManagedByCD
+#          Value: true
+#          Type: KEY_AND_VALUE
+#      ServiceRoleArn: !Ref ServiceRoleArn

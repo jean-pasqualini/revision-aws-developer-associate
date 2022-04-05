@@ -14,23 +14,25 @@ Resources:
       ManagedPolicyArns:
         - "arn:aws:iam::aws:policy/service-role/AWSCodeDeployRole"
         - "arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess"
+        - "arn:aws:iam::aws:policy/service-role/AWSCodeDeployRoleForLambda"
 
-  # https://stelligent.com/2016/01/15/automating-aws-codedeploy-provisioning-in-cloudformation/
-  Deployment:
-    Type: AWS::CodeDeploy::DeploymentGroup
+  AppServer:
+    Type: AWS::CloudFormation::Stack
     Properties:
-      ApplicationName: "test"
-      Deployment:
-        Description: A sample deploy
-        IgnoreApplicationStopFailures: true
-        Revision:
-          RevisionType: S3
-          S3Location:
-            Bucket: "revision-codebuild-935529178062"
-            BundleType: Zip
-            Key: "codedeploy-onpremise.zip"
-      OnPremisesInstanceTagFilters:
-        - Key: ManagedByCD
-          Value: true
-          Type: KEY_AND_VALUE
-      ServiceRoleArn: !GetAtt Role.Arn
+      TemplateURL: on-premise.yaml
+      Parameters:
+        ServiceRoleArn: !GetAtt Role.Arn
+
+  AppLambda:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: lambda.yaml
+      Parameters:
+        ServiceRoleArn: !GetAtt Role.Arn
+
+  AppEC2:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: ec2.yaml
+      Parameters:
+        ServiceRoleArn: !GetAtt Role.Arn
