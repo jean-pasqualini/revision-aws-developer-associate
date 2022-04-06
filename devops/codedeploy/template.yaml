@@ -30,9 +30,16 @@ Resources:
       Parameters:
         ServiceRoleArn: !GetAtt Role.Arn
 
-  AppEC2:
+#  AppEC2Inplace:
+#    Type: AWS::CloudFormation::Stack
+#    Properties:
+#      TemplateURL: ec2-inplace.yaml
+#      Parameters:
+#        ServiceRoleArn: !GetAtt Role.Arn
+
+  AppEC2BlueGreen:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: ec2.yaml
+      TemplateURL: ec2-bluegreen.yaml
       Parameters:
         ServiceRoleArn: !GetAtt Role.Arn
