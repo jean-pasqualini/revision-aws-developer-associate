@@ -1,0 +1,26 @@
+version: 0.0
+Resources:
+  - TargetService:
+      Type: AWS::ECS::Service
+      Properties:
+        TaskDefinition: "arn:aws:ecs:eu-west-3:935529178062:task-definition/revision-codedeploy:2"
+        LoadBalancerInfo:
+          ContainerName: "web"
+          ContainerPort: 80
+# Optional properties
+        PlatformVersion: "LATEST"
+        NetworkConfiguration:
+          AwsvpcConfiguration:
+            Subnets: ["subnet-2f3c2646","subnet-41d6eb3a"]
+            SecurityGroups: ["sg-0630e129465c79163"]
+            AssignPublicIp: "ENABLED"
+        CapacityProviderStrategy:
+          - Base: 0
+            CapacityProvider: "FARGATE"
+            Weight: 1
+#Hooks:
+#  - BeforeInstall: "LambdaFunctionToValidateBeforeInstall"
+#  - AfterInstall: "LambdaFunctionToValidateAfterInstall"
+#  - AfterAllowTestTraffic: "LambdaFunctionToValidateAfterTestTrafficStarts"
+#  - BeforeAllowTraffic: "LambdaFunctionToValidateBeforeAllowingProductionTraffic"
+#  - AfterAllowTraffic: "LambdaFunctionToValidateAfterAllowingProductionTraffic"

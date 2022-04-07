@@ -1,0 +1,64 @@
+Parameters:
+  ServiceRoleArn:
+    Type: String
+
+# https://dev.to/napicella/aws-networking-cheat-sheet-eip-eni-vpc-etc-139m
+Resources:
+  Application:
+    Type: AWS::CodeDeploy::Application
+    Properties:
+      ApplicationName: revision-codedeploy-ec2
+      ComputePlatform: Server
+
+# https://stelligent.com/2016/01/15/automating-aws-codedeploy-provisioning-in-cloudformation/
+# https://stackoverflow.com/questions/60066260/how-to-reference-awscodedeploydeploymentgrouploadbalancerinfo
+#  DeploymentApp:
+#    Type: AWS::CodeDeploy::DeploymentGroup
+#    Properties:
+#      ApplicationName: !Ref Application
+#      LoadBalancerInfo:
+#        TargetGroupInfoList:
+#          - Name: test
+#      BlueGreenDeploymentConfiguration:
+#        DeploymentReadyOption:
+#          ActionOnTimeout: CONTINUE_DEPLOYMENT
+#        GreenFleetProvisioningOption:
+#          Action: DISCOVER_EXISTING
+#        TerminateBlueInstancesOnDeploymentSuccess:
+#          Action: KEEP_ALIVE
+#          #TerminationWaitTimeInMinutes: 10
+#      DeploymentStyle:
+#        DeploymentType: BLUE_GREEN
+#        DeploymentOption: WITH_TRAFFIC_CONTROL # WITH_TRAFFIC_CONTROL | WITHOUT_TRAFFIC_CONTROL
+#      Ec2TagFilters:
+#        - Key: ManagedByCD
+#          Value: true
+#          Type: KEY_AND_VALUE
+#        - Key: Color
+#          Value: Blue
+#          Type: KEY_AND_VALUE
+#      ServiceRoleArn: !Ref ServiceRoleArn
+
+# https://medium.com/@naveedh/what-to-do-when-aws-codedeploy-does-not-terminate-instances-naveedh-e5943df0e36b
+# https://h2ik.co/2019/02/28/aws-codedeploy-blue-green/
+  InstanceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Path: /revision/
+      RoleName: RevisionDeployRole
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal: { Service: ["codedeploy.amazonaws.com","ec2.amazonaws.com"] }
+            Action: ["sts:AssumeRole"]
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforAWSCodeDeploy"
+        - "arn:aws:iam::aws:policy/service-role/AWSCodeDeployRole"
+
+  InstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      InstanceProfileName: revision-deploy-ip
+      Path: /revision/
+      Roles: [!Ref InstanceRole]

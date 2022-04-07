@@ -1,0 +1,10 @@
+Parameters:
+  ServiceRoleArn:
+    Type: String
+
+Resources:
+  Application:
+    Type: AWS::CodeDeploy::Application
+    Properties:
+      ApplicationName: revision-codedeploy-ecs
+      ComputePlatform: ECS

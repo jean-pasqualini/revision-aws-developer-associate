@@ -2,6 +2,7 @@ Parameters:
   ServiceRoleArn:
     Type: String
 
+# https://dev.to/napicella/aws-networking-cheat-sheet-eip-eni-vpc-etc-139m
 Resources:
   Application:
     Type: AWS::CodeDeploy::Application
