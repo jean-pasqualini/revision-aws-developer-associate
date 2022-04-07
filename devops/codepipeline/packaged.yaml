@@ -1,0 +1,52 @@
+Resources:
+  AppPipelineRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: code-pipeline-role
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Sid: ''
+          Effect: Allow
+          Principal:
+            Service:
+            - codepipeline.amazonaws.com
+          Action:
+          - sts:AssumeRole
+      ManagedPolicyArns: []
+  AppPipeline:
+    Type: AWS::CodePipeline::Pipeline
+    Properties:
+      RoleArn:
+        Fn::GetAtt:
+        - AppPipelineRole
+        - Arn
+      ArtifactStore:
+        Type: S3
+        Location: codepipeline-source-935529178062
+      Stages:
+      - Name: Source
+        Actions:
+        - Name: SourceAction
+          ActionTypeId:
+            Category: Source
+            Owner: AWS
+            Version: 1
+            Provider: S3
+          OutputArtifacts:
+          - Name: SourceOutput
+          Configuration:
+            S3Bucket: codepipeline-source-935529178062
+            S3ObjectKey: build.zip
+          RunOrder: 1
+      - Name: Release
+        Actions:
+        - Name: Release
+          ActionTypeId:
+            Category: Deploy
+            Owner: AWS
+            Provider: S3
+            Version: 1
+          Configuration:
+            S3Bucket: codepipeline-source-935529178062
+            S3ObjectKey: release.zip

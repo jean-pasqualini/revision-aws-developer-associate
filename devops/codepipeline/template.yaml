@@ -1,79 +1,94 @@
-AppPipeline:
-  Type: AWS::CodePipeline::Pipeline
-  Properties:
-    RoleArn:
-      Ref: CodePipelineServiceRole
-    Stages:
-      -
-        Name: Source
-        Actions:
-          -
-            Name: SourceAction
-            ActionTypeId:
-              Category: Source
-              Owner: AWS
-              Version: 1
-              Provider: S3
-            OutputArtifacts:
-              -
-                Name: SourceOutput
-            Configuration:
-              S3Bucket:
-                Ref: SourceS3Bucket
-              S3ObjectKey:
-                Ref: SourceS3ObjectKey
-            RunOrder: 1
-      -
-        Name: Beta
-        Actions:
-          -
-            Name: BetaAction
-            InputArtifacts:
-              -
-                Name: SourceOutput
-            ActionTypeId:
-              Category: Deploy
-              Owner: AWS
-              Version: 1
-              Provider: CodeDeploy
-            Configuration:
-              ApplicationName:
-                Ref: ApplicationName
-              DeploymentGroupName:
-                Ref: DeploymentGroupName
-            RunOrder: 1
-      -
-        Name: Release
-        Actions:
-          -
-            Name: ReleaseAction
-            InputArtifacts:
-              -
-                Name: SourceOutput
-            ActionTypeId:
-              Category: Deploy
-              Owner: AWS
-              Version: 1
-              Provider: CodeDeploy
-            Configuration:
-              ApplicationName:
-                Ref: ApplicationName
-              DeploymentGroupName:
-                Ref: DeploymentGroupName
-            RunOrder: 1
-    ArtifactStore:
-      Type: S3
-      Location:
-        Ref: ArtifactStoreS3Location
-      EncryptionKey:
-        Id: arn:aws:kms:useast-1:ACCOUNT-ID:key/KEY-ID
-        Type: KMS
-    DisableInboundStageTransitions:
-      -
-        StageName: Release
-        Reason: "Disabling the transition until integration tests are completed"
-    Tags:
-      - Key: Project
-        Value: ProjectA
-      - Key: IsContainerBased
-        Value: 'true'
+# https://docs.aws.amazon.com/codepipeline/latest/userguide/integrations-action-type.html#integrations-deploy
+Resources:
+  AppPipelineRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: code-pipeline-role
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: ""
+            Effect: Allow
+            Principal: { Service: [ "codepipeline.amazonaws.com" ] }
+            Action: [ "sts:AssumeRole" ]
+      ManagedPolicyArns: []
+
+  AppPipeline:
+    Type: AWS::CodePipeline::Pipeline
+    Properties:
+      RoleArn: !GetAtt AppPipelineRole.Arn
+      ArtifactStore:
+        Type: S3
+        Location: "codepipeline-source-935529178062"
+      Stages:
+        - Name: Source
+          Actions:
+            - Name: SourceAction
+              ActionTypeId:
+                Category: Source
+                Owner: AWS
+                Version: 1
+                Provider: S3
+              OutputArtifacts:
+                - Name: SourceOutput
+              Configuration:
+                S3Bucket: "codepipeline-source-935529178062"
+                S3ObjectKey: "build.zip"
+              RunOrder: 1
+        - Name: Release
+          Actions:
+            - Name: Release
+              ActionTypeId:
+                Category: Deploy # Source | Build | Test | Deploy | Invoke | Approval
+                Owner: AWS
+                Provider: S3
+                Version: 1
+              Configuration:
+                S3Bucket: "codepipeline-source-935529178062"
+                S3ObjectKey: "release.zip"
+  #      - Name: Beta
+  #        Actions:
+  #          - Name: BetaAction
+  #            InputArtifacts:
+  #              - Name: SourceOutput
+  #            ActionTypeId:
+  #              Category: Deploy
+  #              Owner: AWS
+  #              Version: 1
+  #              Provider: CodeDeploy
+  #            Configuration:
+  #              ApplicationName:
+  #                Ref: ApplicationName
+  #              DeploymentGroupName:
+  #                Ref: DeploymentGroupName
+  #            RunOrder: 1
+  #      - Name: Release
+  #        Actions:
+  #          - Name: ReleaseAction
+  #            InputArtifacts:
+  #              - Name: SourceOutput
+  #            ActionTypeId:
+  #              Category: Deploy
+  #              Owner: AWS
+  #              Version: 1
+  #              Provider: CodeDeploy
+  #            Configuration:
+  #              ApplicationName:
+  #                Ref: ApplicationName
+  #              DeploymentGroupName:
+  #                Ref: DeploymentGroupName
+  #            RunOrder: 1
+  #    ArtifactStore:
+  #      Type: S3
+  #      Location:  ArtifactStoreS3Location
+  #      EncryptionKey:
+  #        Id: arn:aws:kms:useast-1:ACCOUNT-ID:key/KEY-ID
+  #        Type: KMS
+  #    DisableInboundStageTransitions:
+  #      - StageName: Release
+  #        Reason: "Disabling the transition until integration tests are completed"
+  #    Tags:
+  #      - Key: Project
+  #        Value: ProjectA
+  #      - Key: IsContainerBased
+  #        Value: 'true'
