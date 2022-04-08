@@ -1,5 +1,24 @@
 # https://docs.aws.amazon.com/codepipeline/latest/userguide/integrations-action-type.html#integrations-deploy
 Resources:
+  AppPipelineBuild:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: codebuild.yaml
+
+  CloudFormationRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: CloudFormationRole
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: cloudformation.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/AdministratorAccess"
+
   AppPipelineRole:
     Type: AWS::IAM::Role
     Properties:
@@ -11,9 +30,25 @@ Resources:
             Effect: Allow
             Principal: { Service: [ "codepipeline.amazonaws.com" ] }
             Action: [ "sts:AssumeRole" ]
+      Policies:
+        - PolicyName: PassRole
+          PolicyDocument: |
+            {
+                "Version": "2012-10-17", 
+                "Statement": [ 
+                    { 
+                        "Effect": "Allow",
+                        "Action": "iam:PassRole", 
+                        "Resource": "arn:aws:iam::935529178062:role/CloudFormationRole"
+                    }
+                ] 
+            }
       ManagedPolicyArns:
         - "arn:aws:iam::aws:policy/AmazonS3FullAccess"
         - "arn:aws:iam::aws:policy/AmazonSNSFullAccess"
+        - "arn:aws:iam::aws:policy/AWSCodeBuildAdminAccess"
+        - "arn:aws:iam::aws:policy/AWSCodePipelineFullAccess"
+        - "arn:aws:iam::aws:policy/AWSCloudFormationFullAccess"
 
   AppPipeline:
     Type: AWS::CodePipeline::Pipeline
@@ -36,19 +71,36 @@ Resources:
                 - Name: SourceOutput
               Configuration:
                 S3Bucket: "codepipeline-source-935529178062"
-                S3ObjectKey: "build.zip"
+                S3ObjectKey: "source.zip"
               RunOrder: 1
         - Name: Build
           Actions:
             - Name: Build
+              InputArtifacts:
+                - Name: SourceOutput
               ActionTypeId:
                 Category: Build
                 Owner: AWS
                 Version: 1
                 Provider: CodeBuild
-              OutputActifacts:
+              OutputArtifacts:
                 - Name: SourceBuild
-              Configuration: {}
+              Configuration:
+                ProjectName: revision-codebuild
+        - Name: Release
+          Actions:
+            - Name: Release
+              InputArtifacts:
+                - Name: SourceBuild
+              ActionTypeId:
+                Category: Deploy # Source | Build | Test | Deploy | Invoke | Approval
+                Owner: AWS
+                Provider: S3
+                Version: 1
+              Configuration:
+                BucketName: "codepipeline-source-935529178062"
+                Extract: false
+                ObjectKey: "release.zip"
         - Name: WaitAnswer
           Actions:
             - Name: ManualAprove
@@ -59,63 +111,19 @@ Resources:
                 Version: 1
               Configuration:
                 NotificationArn: "arn:aws:sns:eu-west-3:935529178062:EmailNotified"
-        - Name: Release
+        - Name: Deploy
           Actions:
-            - Name: Release
+            - Name: Deploy
               InputArtifacts:
                 - Name: SourceOutput
               ActionTypeId:
-                Category: Deploy # Source | Build | Test | Deploy | Invoke | Approval
+                Category: Deploy
                 Owner: AWS
-                Provider: S3
+                Provider: CloudFormation
                 Version: 1
               Configuration:
-                BucketName: "codepipeline-source-935529178062"
-                Extract: false
-                ObjectKey: "release.zip"
-  #      - Name: Beta
-  #        Actions:
-  #          - Name: BetaAction
-  #            InputArtifacts:
-  #              - Name: SourceOutput
-  #            ActionTypeId:
-  #              Category: Deploy
-  #              Owner: AWS
-  #              Version: 1
-  #              Provider: CodeDeploy
-  #            Configuration:
-  #              ApplicationName:
-  #                Ref: ApplicationName
-  #              DeploymentGroupName:
-  #                Ref: DeploymentGroupName
-  #            RunOrder: 1
-  #      - Name: Release
-  #        Actions:
-  #          - Name: ReleaseAction
-  #            InputArtifacts:
-  #              - Name: SourceOutput
-  #            ActionTypeId:
-  #              Category: Deploy
-  #              Owner: AWS
-  #              Version: 1
-  #              Provider: CodeDeploy
-  #            Configuration:
-  #              ApplicationName:
-  #                Ref: ApplicationName
-  #              DeploymentGroupName:
-  #                Ref: DeploymentGroupName
-  #            RunOrder: 1
-  #    ArtifactStore:
-  #      Type: S3
-  #      Location:  ArtifactStoreS3Location
-  #      EncryptionKey:
-  #        Id: arn:aws:kms:useast-1:ACCOUNT-ID:key/KEY-ID
-  #        Type: KMS
-  #    DisableInboundStageTransitions:
-  #      - StageName: Release
-  #        Reason: "Disabling the transition until integration tests are completed"
-  #    Tags:
-  #      - Key: Project
-  #        Value: ProjectA
-  #      - Key: IsContainerBased
-  #        Value: 'true'
+                ActionMode: CREATE_UPDATE
+                StackName: lol
+                TemplatePath: SourceOutput::template.yaml
+                Capabilities: CAPABILITY_IAM,CAPABILITY_AUTO_EXPAND,CAPABILITY_NAMED_IAM
+                RoleArn: !GetAtt CloudFormationRole.Arn

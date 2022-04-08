@@ -1,0 +1,16 @@
+Transform: AWS::Serverless-2016-10-31
+Resources:
+  Lambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: codepipeline-deployed
+      Handler: main
+      AutoPublishAlias: prod
+      CodeUri: s3://codepipeline-source-935529178062/release.zip
+      Runtime: go1.x
+      Timeout: 10
+      Tracing: Active
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - AWSXRayDaemonWriteAccess
+

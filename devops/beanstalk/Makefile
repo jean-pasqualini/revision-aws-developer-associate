@@ -1,4 +1,4 @@
-STACKNAME := "code-pipeline-revision"
+STACKNAME := "beanstalk-revision"
 
 package:
 	aws --profile treezor-playground cloudformation package --template-file template.yaml --output-template packaged.yaml --s3-bucket revision-935529178062-cloudformation
@@ -19,10 +19,3 @@ list-stack-events:
 	aws --profile treezor-playground cloudformation describe-stack-events --stack-name $(STACKNAME)
 delete-stack:
 	aws --profile treezor-playground cloudformation delete-stack --stack-name $(STACKNAME)
-
-create-bucket:
-	aws --profile treezor-playground s3 mb s3://codepipeline-source-935529178062
-
-sync-bucket:
-	cd src/lambda/ && zip -r ../../source.zip ./ && cd -
-	aws --profile treezor-playground s3 cp source.zip s3://codepipeline-source-935529178062/source.zip

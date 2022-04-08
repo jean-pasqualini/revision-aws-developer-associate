@@ -1,0 +1,22 @@
+Resources:
+  App:
+    Type: AWS::ElasticBeanstalk::Application
+    Properties:
+      ApplicationName: RevisionBeanstalk
+      Description: "Revision on Beanstalk"
+
+  AppVersion:
+    Type: AWS::ElasticBeanstalk::ApplicationVersion
+    Properties:
+      ApplicationName: !Ref App
+      SourceBundle:
+        S3Bucket: ""
+        s3Key: "source.zip"
+
+  Environment:
+    Type: AWS::ElasticBeanstalk::Environment
+    Properties:
+      ApplicationName: !Ref App
+      EnvironmentName: RevisionBeanstalkEnvironment
+      TemplateName: DefaultConfiguration
+      VersionLabel: "Initial Version"

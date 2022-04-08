@@ -1,0 +1,40 @@
+Resources:
+  ServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: "CodeBuildRevisionServiceRole"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal: { Service: "codebuild.amazonaws.com" }
+            Action: "sts:AssumeRole"
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/CloudWatchLogsFullAccess"
+        - "arn:aws:iam::aws:policy/AmazonS3FullAccess"
+        - "arn:aws:iam::aws:policy/AWSCodeBuildAdminAccess"
+        - "arn:aws:iam::aws:policy/AWSCodeCommitReadOnly"
+
+  Project:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Name: revision-codebuild
+      Description: revision code build
+      ServiceRole: !Ref ServiceRole
+      LogsConfig:
+        CloudWatchLogs:
+          GroupName: "codebuild"
+          Status: "ENABLED"
+          StreamName: "revision"
+      Artifacts:
+        Type: CODEPIPELINE
+      Environment:
+        Type: LINUX_CONTAINER
+        ComputeType: BUILD_GENERAL1_SMALL
+        Image: aws/codebuild/standard:5.0
+      Source:
+        Type: CODEPIPELINE
+
+Outputs:
+  ProjectName:
+    Value: !Ref Project

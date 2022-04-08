@@ -1,4 +1,21 @@
 Resources:
+  AppPipelineBuild:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://s3.eu-west-3.amazonaws.com/revision-935529178062-cloudformation/ba119935d0ab4ecfca7d7f30200ef294.template
+  CloudFormationRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: CloudFormationRole
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: cloudformation.amazonaws.com
+          Action: sts:AssumeRole
+      ManagedPolicyArns:
+      - arn:aws:iam::aws:policy/AdministratorAccess
   AppPipelineRole:
     Type: AWS::IAM::Role
     Properties:
@@ -13,9 +30,18 @@ Resources:
             - codepipeline.amazonaws.com
           Action:
           - sts:AssumeRole
+      Policies:
+      - PolicyName: PassRole
+        PolicyDocument: "{\n    \"Version\": \"2012-10-17\", \n    \"Statement\":\
+          \ [ \n        { \n            \"Effect\": \"Allow\",\n            \"Action\"\
+          : \"iam:PassRole\", \n            \"Resource\": \"arn:aws:iam::935529178062:role/CloudFormationRole\"\
+          \n        }\n    ] \n}\n"
       ManagedPolicyArns:
       - arn:aws:iam::aws:policy/AmazonS3FullAccess
       - arn:aws:iam::aws:policy/AmazonSNSFullAccess
+      - arn:aws:iam::aws:policy/AWSCodeBuildAdminAccess
+      - arn:aws:iam::aws:policy/AWSCodePipelineFullAccess
+      - arn:aws:iam::aws:policy/AWSCloudFormationFullAccess
   AppPipeline:
     Type: AWS::CodePipeline::Pipeline
     Properties:
@@ -40,8 +66,36 @@ Resources:
           - Name: SourceOutput
           Configuration:
             S3Bucket: codepipeline-source-935529178062
-            S3ObjectKey: build.zip
+            S3ObjectKey: source.zip
           RunOrder: 1
+      - Name: Build
+        Actions:
+        - Name: Build
+          InputArtifacts:
+          - Name: SourceOutput
+          ActionTypeId:
+            Category: Build
+            Owner: AWS
+            Version: 1
+            Provider: CodeBuild
+          OutputArtifacts:
+          - Name: SourceBuild
+          Configuration:
+            ProjectName: revision-codebuild
+      - Name: Release
+        Actions:
+        - Name: Release
+          InputArtifacts:
+          - Name: SourceBuild
+          ActionTypeId:
+            Category: Deploy
+            Owner: AWS
+            Provider: S3
+            Version: 1
+          Configuration:
+            BucketName: codepipeline-source-935529178062
+            Extract: false
+            ObjectKey: release.zip
       - Name: WaitAnswer
         Actions:
         - Name: ManualAprove
@@ -52,17 +106,22 @@ Resources:
             Version: 1
           Configuration:
             NotificationArn: arn:aws:sns:eu-west-3:935529178062:EmailNotified
-      - Name: Release
+      - Name: Deploy
         Actions:
-        - Name: Release
+        - Name: Deploy
           InputArtifacts:
           - Name: SourceOutput
           ActionTypeId:
             Category: Deploy
             Owner: AWS
-            Provider: S3
+            Provider: CloudFormation
             Version: 1
           Configuration:
-            BucketName: codepipeline-source-935529178062
-            Extract: false
-            ObjectKey: release.zip
+            ActionMode: CREATE_UPDATE
+            StackName: lol
+            TemplatePath: SourceOutput::template.yaml
+            Capabilities: CAPABILITY_IAM,CAPABILITY_AUTO_EXPAND,CAPABILITY_NAMED_IAM
+            RoleArn:
+              Fn::GetAtt:
+              - CloudFormationRole
+              - Arn
