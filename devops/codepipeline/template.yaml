@@ -11,11 +11,14 @@ Resources:
             Effect: Allow
             Principal: { Service: [ "codepipeline.amazonaws.com" ] }
             Action: [ "sts:AssumeRole" ]
-      ManagedPolicyArns: []
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/AmazonS3FullAccess"
+        - "arn:aws:iam::aws:policy/AmazonSNSFullAccess"
 
   AppPipeline:
     Type: AWS::CodePipeline::Pipeline
     Properties:
+      Name: revision-codepipeline
       RoleArn: !GetAtt AppPipelineRole.Arn
       ArtifactStore:
         Type: S3
@@ -35,17 +38,41 @@ Resources:
                 S3Bucket: "codepipeline-source-935529178062"
                 S3ObjectKey: "build.zip"
               RunOrder: 1
+        - Name: Build
+          Actions:
+            - Name: Build
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Version: 1
+                Provider: CodeBuild
+              OutputActifacts:
+                - Name: SourceBuild
+              Configuration: {}
+        - Name: WaitAnswer
+          Actions:
+            - Name: ManualAprove
+              ActionTypeId:
+                Category: Approval
+                Owner: AWS
+                Provider: "Manual"
+                Version: 1
+              Configuration:
+                NotificationArn: "arn:aws:sns:eu-west-3:935529178062:EmailNotified"
         - Name: Release
           Actions:
             - Name: Release
+              InputArtifacts:
+                - Name: SourceOutput
               ActionTypeId:
                 Category: Deploy # Source | Build | Test | Deploy | Invoke | Approval
                 Owner: AWS
                 Provider: S3
                 Version: 1
               Configuration:
-                S3Bucket: "codepipeline-source-935529178062"
-                S3ObjectKey: "release.zip"
+                BucketName: "codepipeline-source-935529178062"
+                Extract: false
+                ObjectKey: "release.zip"
   #      - Name: Beta
   #        Actions:
   #          - Name: BetaAction
