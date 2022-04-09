@@ -19,3 +19,13 @@ list-stack-events:
 	aws --profile treezor-playground cloudformation describe-stack-events --stack-name $(STACKNAME)
 delete-stack:
 	aws --profile treezor-playground cloudformation delete-stack --stack-name $(STACKNAME)
+
+update-source:
+	rm source.zip || true
+	cd src && zip -r ../source.zip ./ && cd -
+	aws --profile treezor-playground s3 cp ./source.zip s3://revision-beanstalk-935529178062/source.zip
+
+list-solution-stacks:
+	aws --profile treezor-playground elasticbeanstalk list-available-solution-stacks
+install-ebcli:
+	pip install awsebcli --upgrade --user

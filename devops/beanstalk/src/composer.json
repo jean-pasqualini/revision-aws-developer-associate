@@ -1,0 +1,17 @@
+{
+    "name": "darkilliant/src",
+    "require": {
+        "aws/aws-sdk-php": "^3.219"
+    },
+    "autoload": {
+        "psr-4": {
+            "Darkilliant\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Jean Pasqualini",
+            "email": "jean.pasqualini-ext@treezor.com"
+        }
+    ]
+}

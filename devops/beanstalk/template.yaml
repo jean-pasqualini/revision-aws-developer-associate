@@ -1,22 +1,31 @@
 Resources:
-  App:
-    Type: AWS::ElasticBeanstalk::Application
+  InstanceProfileRole:
+    Type: AWS::IAM::Role
     Properties:
-      ApplicationName: RevisionBeanstalk
-      Description: "Revision on Beanstalk"
+      RoleName: BeanstalkInstanceProfileRole
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal: {Service: "ec2.amazonaws.com"}
+            Action:
+              - 'sts:AssumeRole'
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Sid: BucketAccess
+                Action:
+                  - "s3:Get*"
+                  - "s3:List*"
+                  - "s3:PutObject"
+                Effect: "Allow"
+                Resource: "*"
 
-  AppVersion:
-    Type: AWS::ElasticBeanstalk::ApplicationVersion
+  InstanceProfile:
+    Type: AWS::IAM::InstanceProfile
     Properties:
-      ApplicationName: !Ref App
-      SourceBundle:
-        S3Bucket: ""
-        s3Key: "source.zip"
-
-  Environment:
-    Type: AWS::ElasticBeanstalk::Environment
-    Properties:
-      ApplicationName: !Ref App
-      EnvironmentName: RevisionBeanstalkEnvironment
-      TemplateName: DefaultConfiguration
-      VersionLabel: "Initial Version"
+      InstanceProfileName: revision-beanstalk-ip
+      Roles:
+        - !Ref InstanceProfileRole
