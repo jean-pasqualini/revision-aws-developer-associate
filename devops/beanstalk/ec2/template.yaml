@@ -1,4 +1,18 @@
 Resources:
+#  BeanstalkServiceRole:
+#    Type: AWS::IAM::ServiceLinkedRole
+#    Properties:
+#      RoleName: BeanstalkServiceRole
+#      AssumeRolePolicyDocument:
+#        Version: 2012-10-17
+#        Statement:
+#          - Effect: Allow
+#            Principal: {Service: "elasticbeanstalk.amazonaws.com"}
+#            Action:
+#              - 'sts:AssumeRole'
+#      ManagedPolicyArns:
+#        - "arn:aws:iam::aws:policy/aws-service-role/AWSElasticBeanstalkServiceRolePolicy"
+
   InstanceProfileRole:
     Type: AWS::IAM::Role
     Properties:
