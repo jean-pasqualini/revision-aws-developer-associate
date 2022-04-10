@@ -16,6 +16,12 @@ delete-stack:
 create-bucket:
 	aws --profile treezor-playground s3 mb s3://revision-935529178062-cloudformation
 
+create-version:
+	rm /tmp/source.zip || true
+	zip /tmp/source.zip -r ./
+	aws --profile treezor-playground s3 cp /tmp/source.zip s3://revision-935529178062-cloudformation/source.zip
+	aws --profile treezor-playground elasticbeanstalk create-application-version --application-name LevelUpBeanstalk --version-label v1 --source-bundle S3Bucket="revision-935529178062-cloudformation",S3Key="source.zip"
+
 eb-init:
 	eb init --region "eu-west-3" --platform "PHP 8.0 running on 64bit Amazon Linux 2" --profile treezor-playground -- LevelUpBeanstalk
 
@@ -27,4 +33,4 @@ cli-create-env:
 
 #--service-role arn:aws:iam::935529178062:role/BeanstalkServiceRole
 eb-create-env:
-	eb create --cname levelup2107 --single --instance_profile revision-beanstalk-ip --database --instance-types t2.micro -- SingleEnv
+	eb create --cname levelup1811 --instance_profile revision-beanstalk-ip --database --instance-types t2.micro -- LoadBalancinhWebEC2Env

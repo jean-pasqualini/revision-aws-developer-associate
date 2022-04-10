@@ -1,13 +1,14 @@
 <?php
 
-namespace Darkilliant\Middleware;
+namespace Darkilliant\Http\Controller;
 
 use Darkilliant\Database\Mysql;
+use Darkilliant\Http\Middleware\HttpMiddleware;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class ApplicationMiddleware implements HttpMiddleware {
+class HomepageController implements HttpMiddleware {
 
     public function __construct(private Mysql $mysql) {}
 

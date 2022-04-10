@@ -20,6 +20,22 @@ class Mysql
         $this->pdo = new \PDO($dsn, $username, $password);
     }
 
+    public function createSchema()
+    {
+        $this->pdo->query(<<<EOF
+            CREATE TABLE `character` (
+                `id` INT NOT NULL AUTO_INCREMENT,
+                `name` VARCHAR(255),
+                `color` VARCHAR(255),
+                `power` VARCHAR(255),
+                `life` INT,
+                PRIMARY KEY (`id`)
+            );
+            EOF
+        );
+
+    }
+
     public function showTables()
     {
         $query = $this->pdo->query("SHOW TABLES");

@@ -1,6 +1,6 @@
 <?php
 
-namespace Darkilliant\Middleware;
+namespace Darkilliant\Http\Middleware;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;

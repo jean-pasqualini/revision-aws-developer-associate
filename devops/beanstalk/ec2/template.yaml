@@ -24,18 +24,8 @@ Resources:
             Principal: {Service: "ec2.amazonaws.com"}
             Action:
               - 'sts:AssumeRole'
-      Policies:
-        - PolicyName: root
-          PolicyDocument:
-            Version: 2012-10-17
-            Statement:
-              - Sid: BucketAccess
-                Action:
-                  - "s3:Get*"
-                  - "s3:List*"
-                  - "s3:PutObject"
-                Effect: "Allow"
-                Resource: "*"
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/AWSElasticBeanstalkWebTier"
 
   InstanceProfile:
     Type: AWS::IAM::InstanceProfile

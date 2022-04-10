@@ -1,7 +1,8 @@
 <?php
 
-namespace Darkilliant\Middleware;
+namespace Darkilliant\Http\Middleware;
 
+use Darkilliant\Http\Middleware\HttpMiddleware;
 use Pkerrigan\Xray\Submission\DaemonSegmentSubmitter;
 use Pkerrigan\Xray\Trace;
 use Symfony\Component\HttpFoundation\Request;
