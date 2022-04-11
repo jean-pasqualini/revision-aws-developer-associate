@@ -15,3 +15,8 @@ list-stack-events:
 
 delete-stack:
 	aws --profile treezor-playground cloudformation delete-stack --stack-name $(STACKNAME)
+
+generate:
+	# Generate 400KB per item
+	bin/console add --nb-lines 20 --size-format er -- 1000
+

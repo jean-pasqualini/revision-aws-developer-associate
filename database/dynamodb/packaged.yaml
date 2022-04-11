@@ -10,5 +10,5 @@ Resources:
       - AttributeName: CharacterName
         KeyType: HASH
       ProvisionedThroughput:
-        ReadCapacityUnits: '5'
+        ReadCapacityUnits: '1'
         WriteCapacityUnits: '5'

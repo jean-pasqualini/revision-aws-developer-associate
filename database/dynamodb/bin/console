@@ -1,0 +1,18 @@
+#!/bin/php
+<?php
+
+namespace App;
+
+use App\Command\AddCommand;
+use App\Command\EmptyTableCommand;
+use App\Command\QueryCommand;
+use Symfony\Component\Console\Application;
+
+require __DIR__.'/../vendor/autoload.php';
+
+$application = new Application();
+$application->add(new AddCommand());
+$application->add(new QueryCommand());
+$application->add(new EmptyTableCommand());
+$application->run();
+
