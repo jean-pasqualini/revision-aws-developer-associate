@@ -1,0 +1,14 @@
+Resources:
+  Table:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: revision-dynamo
+      AttributeDefinitions:
+      - AttributeName: CharacterName
+        AttributeType: S
+      KeySchema:
+      - AttributeName: CharacterName
+        KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: '5'
+        WriteCapacityUnits: '5'
