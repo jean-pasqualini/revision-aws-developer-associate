@@ -5,7 +5,10 @@ namespace App;
 
 use App\Command\AddCommand;
 use App\Command\EmptyTableCommand;
+use App\Command\PartiqlCommand;
 use App\Command\QueryCommand;
+use App\Command\ScanCommand;
+use App\Command\UpdateCommand;
 use Symfony\Component\Console\Application;
 
 require __DIR__.'/../vendor/autoload.php';
@@ -14,5 +17,8 @@ $application = new Application();
 $application->add(new AddCommand());
 $application->add(new QueryCommand());
 $application->add(new EmptyTableCommand());
+$application->add(new ScanCommand());
+$application->add(new PartiqlCommand());
+$application->add(new UpdateCommand());
 $application->run();
 

@@ -18,5 +18,5 @@ delete-stack:
 
 generate:
 	# Generate 400KB per item
-	bin/console add --nb-lines 20 --size-format er -- 1000
+	bin/console add --nb-lines 1 --size-format er -- 50
 

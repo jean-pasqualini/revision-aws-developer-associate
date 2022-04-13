@@ -6,9 +6,26 @@ Resources:
       AttributeDefinitions:
       - AttributeName: CharacterName
         AttributeType: S
+      - AttributeName: Power
+        AttributeType: S
+      - AttributeName: Friend
+        AttributeType: S
       KeySchema:
       - AttributeName: CharacterName
         KeyType: HASH
+      - AttributeName: Power
+        KeyType: RANGE
+      LocalSecondaryIndexes:
+      - IndexName: Friend
+        KeySchema:
+        - AttributeName: CharacterName
+          KeyType: HASH
+        - AttributeName: Friend
+          KeyType: RANGE
+        Projection:
+          ProjectionType: INCLUDE
+          NonKeyAttributes:
+          - truc
       ProvisionedThroughput:
         ReadCapacityUnits: '1'
-        WriteCapacityUnits: '5'
+        WriteCapacityUnits: '1'

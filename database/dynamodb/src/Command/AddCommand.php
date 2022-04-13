@@ -2,22 +2,24 @@
 
 namespace App\Command;
 
+use App\Component\StatComponent;
+use App\Helper\ConsumedCapacityTrait;
+use App\Helper\ShowTableItemTrait;
+use App\Store\DynamoStore;
 use Aws\DynamoDb\DynamoDbClient;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
-use Symfony\Component\Console\Helper\TableSeparator;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use Twig\Environment;
-use Twig\Loader\FilesystemLoader;
 
 class AddCommand extends Command
 {
     const ONE_BYTE = 1;
     const ONE_KILOBYTE = self::ONE_BYTE * 1024;
+    const ONE_WRITE = self::ONE_KILOBYTE;
     const ONE_CONSISTENT_READ = self::ONE_KILOBYTE * 4;
     const ONE_EVENTUAL_READ = self::ONE_CONSISTENT_READ * 2;
     const CHARACTERS = [
@@ -25,16 +27,20 @@ class AddCommand extends Command
         'Dragon', 'Harry', 'Bilbon', 'Furet', 'Zeus', 'Bioshock', 'Pinball', 'Tea', 'Cofee', 'Blue',
     ];
 
-    private Environment $twig;
+    use ConsumedCapacityTrait;
+    use ShowTableItemTrait;
+
     private DynamoDbClient $dynamoClient;
+    private DynamoStore $store;
 
     public function __construct(string $name = null)
     {
-        $this->twig = new Environment(new FilesystemLoader([__DIR__."/../template"]));
         $this->dynamoClient = new DynamoDbClient([
             'region' => 'eu-west-3',
             'version' => '2012-08-10',
+            'retries' => 3,
         ]);
+        $this->store = new DynamoStore($this->dynamoClient);
         parent::__construct($name);
     }
 
@@ -51,92 +57,58 @@ class AddCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $symfonyStyle = new SymfonyStyle($input, $output);
-        $sizeForamt = $input->getOption('size-format');
+        $sizeFormat = $input->getOption('size-format');
         $targetSize = intval($input->getArgument("size"));
-        if ($sizeForamt == 'kb') {
+        if ($sizeFormat == 'kb') {
             $targetSize *= self::ONE_KILOBYTE;
         }
-        if ($sizeForamt == 'er') {
+        if ($sizeFormat == 'er') {
             $targetSize = $targetSize * self::ONE_EVENTUAL_READ;
         }
-        if ($sizeForamt == 'cr') {
+        if ($sizeFormat == 'cr') {
             $targetSize = $targetSize * self::ONE_CONSISTENT_READ;
         }
 
+        $result = $this->dynamoClient->describeTable([
+            'TableName' => 'revision-dynamo',
+        ]);
 
-        $nbLines = intval($input->getOption('nb-lines'));
+        $writeCapacityUnits = $result["Table"]['ProvisionedThroughput']['WriteCapacityUnits'];
+        $tableSize = $result['TableSizeBytes'];
+        $itemCount = $result['ItemCount'];
 
-        $table = $symfonyStyle->createTable();
-        $table->setHeaderTitle('info');
-        $table->setHeaders(['ID', 'Size (b)', 'Size (kb)', 'eventual reads', 'consistent reads']);
+        $symfonyStyle->horizontalTable(
+            ["Capacity", "TableSize", "Item count"],
+            [[
+                sprintf("%d WCU", $writeCapacityUnits),
+                sprintf("%d Bytes", $tableSize),
+                sprintf("%d Items", $itemCount)
+            ]]
+        );
 
-        $countBytes = 0;
-        $countKylobytes = 0;
-        $countEventualReads = 0;
-        $countConsistentReads = 0;
+        $nbLines = (int)$input->getOption('nb-lines');
+        $isDryRun = $input->getOption('dry-run');
+
+
+        $statComponent = new StatComponent($output);
+        $items = [];
 
         for ($i = 1; $i <= $nbLines; $i++) {
-            list($lineBytes, $lineKylobytes, $lineEventualReads, $lineConsistentReads) = $this->item(
-                $table,
-                $i,
-                $input->getOption('dry-run'),
-                self::CHARACTERS[$i-1],
-                $nbLines,
-                $targetSize
-            );
-
-            $countBytes += $lineBytes;
-            $countKylobytes += $lineKylobytes;
-            $countEventualReads += $lineEventualReads;
-            $countConsistentReads += $lineConsistentReads;
+            $characterTargetSize = $targetSize / $nbLines;
+            $character = grown([
+                "CharacterName" => self::CHARACTERS[$i-1], "Power" => "Fire", "Friend" => "Jules"
+            ], $characterTargetSize);
+            $dynamoFormat = dynamoFormat($character);
+            $statComponent->addDynamoItem($dynamoFormat);
+            $items[] = $dynamoFormat;
         }
 
-        $table->addRow(new TableSeparator());
-        $table->addRow([
-            'Total',
-            sprintf('%d bytes', $countBytes),
-            sprintf('%d kylo bytes', $countKylobytes),
-            sprintf('%d eventual read', ceil($countEventualReads)),
-            sprintf('%d consistent read',ceil($countConsistentReads)),
-        ]);
-
-
-
-        $table->render();
-
-        return 0;
-    }
-
-    private function item(Table $table, $i, $isDryRun, $characterName, $nbLines, $targetSize)
-    {
-        $characterTargetSize = $targetSize / $nbLines;
-
-        $character = grown([
-            "CharacterName" => $characterName,
-        ], $characterTargetSize);
-        $dynamoFormat = dynamoFormat($character);
-
-        $countBytes = size($character);
-        $countKyloBytes = $countBytes / self::ONE_KILOBYTE;
-        $countEventualRead = $countBytes / self::ONE_EVENTUAL_READ;
-        $countConsistentRead = $countBytes / self::ONE_CONSISTENT_READ;
-
-
-        $table->addRow([
-            $i.'. '.$character['CharacterName'],
-            sprintf('%d bytes', $countBytes),
-            sprintf('%d kylo bytes', $countKyloBytes),
-            sprintf('%d eventual read', $countEventualRead),
-            sprintf('%d consistent read',$countConsistentRead),
-        ]);
+        $statComponent->render();
 
         if (!$isDryRun) {
-            $this->dynamoClient->putItem([
-                'TableName' => 'revision-dynamo',
-                'Item' => $dynamoFormat,
-            ]);
+            $this->store->storeItems($output, "revision-dynamo", $items);
         }
 
-        return [$countBytes, $countKyloBytes, $countEventualRead, $countConsistentRead];
+        return 0;
     }
 }
