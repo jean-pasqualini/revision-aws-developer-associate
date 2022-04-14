@@ -30,10 +30,14 @@ https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/HowItWorks.Nami
 - Transactional = tranche de 8 kibibytes (4096 bytes)
 - Consistent = tranche de 4 kibibytes (4096 bytes)
 - Eventual = tranche de 2 kibibytes (2048 bytes)
+- 
 
 ### Apprentissages
 - Quand on fait Scan ou Query la consomation est faite sur la taille du résultat et non sur l'addition des items.
 - Point intéréssant quand on augmente la taille d'un item via put par example la capacité consomé augmente tout de suite en revanche quand on la diminue elle redescent au second appel uniquement
+- Les indexs globaux et locaux peuvent être uniquement être intéroger avec Query/Scan, GetItem et BatchGetItem ne sait pas intéroger d'index.
+- Il est possible en partiql d'intéroguer un index (select * FROM table.index)
+
 ## Test
 
 ### 20 lines / 400kb per line / 1000 RCU (eventual)
