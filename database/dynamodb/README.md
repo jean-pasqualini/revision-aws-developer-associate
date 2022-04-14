@@ -20,10 +20,16 @@ https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/HowItWorks.Nami
 
 ### Limits
 - 400KB per item
+  - Cette limite inclu l'item + ses indexs
 - 1MB par Scan
 - 1MB par Query
 - 16MB par BatchGetItem / 100 Items max
 - 16MB par BatchWriteItem / 25 Items max
+
+### Size
+- Transactional = tranche de 8 kibibytes (4096 bytes)
+- Consistent = tranche de 4 kibibytes (4096 bytes)
+- Eventual = tranche de 2 kibibytes (2048 bytes)
 
 ### Apprentissages
 - Quand on fait Scan ou Query la consomation est faite sur la taille du résultat et non sur l'addition des items.

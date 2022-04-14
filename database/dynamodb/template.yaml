@@ -8,23 +8,52 @@ Resources:
           AttributeType: S
         - AttributeName: Power
           AttributeType: S
-        - AttributeName: Friend
-          AttributeType: S
       KeySchema:
         - AttributeName: CharacterName
           KeyType: HASH
         - AttributeName: Power
           KeyType: RANGE
       LocalSecondaryIndexes:
-        - IndexName: Friend
+        - IndexName: Index1
           KeySchema:
             - AttributeName: CharacterName
               KeyType: HASH
-            - AttributeName: Friend
+            - AttributeName: Power
               KeyType: RANGE
           Projection:
-            ProjectionType: INCLUDE
-            NonKeyAttributes: ["truc"]
+            ProjectionType: ALL
+        - IndexName: Index2
+          KeySchema:
+            - AttributeName: CharacterName
+              KeyType: HASH
+            - AttributeName: Power
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+        - IndexName: Index3
+          KeySchema:
+            - AttributeName: CharacterName
+              KeyType: HASH
+            - AttributeName: Power
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+        - IndexName: Index4
+          KeySchema:
+            - AttributeName: CharacterName
+              KeyType: HASH
+            - AttributeName: Power
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+        - IndexName: Index5
+          KeySchema:
+            - AttributeName: CharacterName
+              KeyType: HASH
+            - AttributeName: Power
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
       ProvisionedThroughput:
         ReadCapacityUnits: '1'
         WriteCapacityUnits: '1'

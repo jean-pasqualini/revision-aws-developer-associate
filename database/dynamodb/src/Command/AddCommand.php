@@ -18,7 +18,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 class AddCommand extends Command
 {
     const ONE_BYTE = 1;
-    const ONE_KILOBYTE = self::ONE_BYTE * 1024;
+    const ONE_KILOBYTE = self::ONE_BYTE * 1024; // 1024
     const ONE_WRITE = self::ONE_KILOBYTE;
     const ONE_CONSISTENT_READ = self::ONE_KILOBYTE * 4;
     const ONE_EVENTUAL_READ = self::ONE_CONSISTENT_READ * 2;
