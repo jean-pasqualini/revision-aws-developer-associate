@@ -10,7 +10,7 @@ trait ConsumedCapacityTrait
 {
     public function showItemCollectionMetrics(array $result, OutputInterface $output)
     {
-        $output->writeln("debug metrics : ".json_encode($result['ItemCollectionMetrics']));
+        $output->writeln("debug metrics : ".json_encode($result['ItemCollectionMetrics'] ?? []));
     }
 
     public function showConsumeCapacity(array $result, OutputInterface $output)
