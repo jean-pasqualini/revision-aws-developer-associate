@@ -4,10 +4,12 @@
 namespace App;
 
 use App\Command\AddCommand;
+use App\Command\BatchGetCommand;
 use App\Command\EmptyTableCommand;
 use App\Command\PartiqlCommand;
 use App\Command\QueryCommand;
 use App\Command\ScanCommand;
+use App\Command\TransactionalReadCommand;
 use App\Command\UpdateCommand;
 use Symfony\Component\Console\Application;
 
@@ -20,5 +22,7 @@ $application->add(new EmptyTableCommand());
 $application->add(new ScanCommand());
 $application->add(new PartiqlCommand());
 $application->add(new UpdateCommand());
+$application->add(new TransactionalReadCommand());
+$application->add(new BatchGetCommand());
 $application->run();
 
