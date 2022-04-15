@@ -1,0 +1,19 @@
+Resources:
+  MainS3:
+    Type: AWS::S3::Bucket
+    Properties:
+      AccessControl: PublicRead
+      BucketName: revision-935529178062-s3
+      VersioningConfiguration:
+        Status: Enabled
+      WebsiteConfiguration:
+        IndexDocument: index.html
+        ErrorDocument: index.html
+      CorsConfiguration:
+        CorsRules:
+          - AllowedHeaders: ["*"]
+            AllowedMethods: ["GET"]
+            AllowedOrigins: ["*"]
+            ExposedHeaders: ["Date"]
+            Id: my-cors-rule
+            MaxAge: 3600
