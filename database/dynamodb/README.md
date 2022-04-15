@@ -17,6 +17,7 @@ https://dynobase.dev/dynamodb-capacity-and-item-size-calculator/
 https://quick-adviser.com/how-does-dynamodb-calculate-item-size/
 https://zaccharles.medium.com/calculating-a-dynamodb-items-size-and-consumed-capacity-d1728942eb7c
 https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/HowItWorks.NamingRulesDataTypes.html
+https://www.alexdebrie.com/posts/dynamodb-partitions/
 
 ### Limits
 - 400KB per item

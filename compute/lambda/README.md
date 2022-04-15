@@ -34,6 +34,7 @@
   - La DLQ recoit l'input
   - La destination recoit l'output
 
+- https://aws.amazon.com/fr/blogs/architecture/understanding-the-different-ways-to-invoke-lambda-functions/
 ## Apprentissage
 
 #### VPC & EFS

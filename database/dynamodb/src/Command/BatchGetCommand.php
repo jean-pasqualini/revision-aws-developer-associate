@@ -49,9 +49,9 @@ class BatchGetCommand extends Command
         }
 
         $result = $this->client->batchGetItem([
-            "ConsistentRead" => $input->getOption('consistent-read'),
             "RequestItems" => [
                 "revision-dynamo" => [
+                    "ConsistentRead" => $input->getOption('consistent-read'),
                     "Keys" => $keys,
                 ]
             ],
@@ -64,6 +64,8 @@ class BatchGetCommand extends Command
                 $table->addDynamoItem($item);
             }
         }
+        $table->declareUnprocessedItems(count($result['UnprocessedKeys']['revision-dynamo']['Keys']));
+
         $table->render();
 
         $output->writeln("debug unprocessed keys : ".json_encode($result['UnprocessedKeys']));

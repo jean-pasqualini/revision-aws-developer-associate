@@ -47,6 +47,7 @@ class AddCommand extends Command
     protected function configure()
     {
         $this->setName("add");
+        $this->addOption('batch');
         $this->addArgument("size", InputArgument::REQUIRED, "target size in bytes (1024 bytes = 1kb)");
         $this->addOption("nb-lines", null, InputOption::VALUE_REQUIRED, "size dispatch in several lines", 1);
         $this->addOption('size-format', null, InputOption::VALUE_REQUIRED, 'format (kb = kylobyte, b = byte, er = eventual read, cr = consistent read)', 'kb');
@@ -106,7 +107,11 @@ class AddCommand extends Command
         $statComponent->render();
 
         if (!$isDryRun) {
-            $this->store->storeItems($output, "revision-dynamo", $items);
+            if ($input->getOption('batch')) {
+                $this->store->storeBatchItems($output, "revision-dynamo", $items);
+            } else {
+                $this->store->storeItems($output, "revision-dynamo", $items);
+            }
         }
 
         return 0;

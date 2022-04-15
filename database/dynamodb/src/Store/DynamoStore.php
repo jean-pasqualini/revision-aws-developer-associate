@@ -44,7 +44,7 @@ class DynamoStore
 
         $try = 1;
         do {
-            $output->writeln("try n° ".$try);
+            $output->writeln("try n° ".$try.", count remainings = ".count($batch));
             $result = $this->dynamoClient->batchWriteItem([
                 "RequestItems" => [
                     $table => $batch

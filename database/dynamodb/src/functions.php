@@ -26,8 +26,12 @@ namespace {
         return $sizeInBytes;
     }
 
-    function sizeDynamo(array $data)
+    function sizeDynamo(?array $data)
     {
+        if (null === $data) {
+            return 1;
+        }
+
         $sizeInBytes = 0;
         // 4kb = 4096 bytes
 
