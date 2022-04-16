@@ -1,0 +1,1 @@
+https://blog.datanextsolutions.com/enabling-mfa-delete-on-aws-s3-buckets-99e073b70bdc
