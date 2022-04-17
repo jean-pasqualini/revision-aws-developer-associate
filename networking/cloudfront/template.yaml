@@ -1,2 +1,49 @@
-Resource:
-  
+Resources:
+  CloudFront:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        DefaultCacheBehavior:
+          AllowedMethods: ["GET", "HEAD", "OPTIONS"]
+          CachedMethods: ["GET", "HEAD", "OPTIONS"]
+          # https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/using-managed-cache-policies.html
+          CachePolicyId: b2884449-e4de-46a7-ac36-70bc7f1ddd6d # CachingOptimizedForUncompressedObjects
+          Compress: false
+          # https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/using-managed-origin-request-policies.html
+          OriginRequestPolicyId: acba4595-bd28-49b8-b9fe-13317c0390fa # UserAgentRefererHeaders
+          # ResponseHeadersPolicyId
+          TargetOriginId: revision
+          ViewerProtocolPolicy: https-only
+          LambdaFunctionAssociations:
+            - EventType: viewer-request
+              IncludeBody: false
+              LambdaFunctionARN: arn:aws:lambda:us-east-1:935529178062:function:test:2
+        CacheBehaviors:
+          - AllowedMethods: ["GET", "HEAD", "OPTIONS"]
+            CachedMethods: ["GET", "HEAD", "OPTIONS"]
+            # https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/using-managed-cache-policies.html
+            CachePolicyId: b2884449-e4de-46a7-ac36-70bc7f1ddd6d # CachingOptimizedForUncompressedObjects
+            Compress: false
+            # https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/using-managed-origin-request-policies.html
+            # OriginRequestPolicyId: acba4595-bd28-49b8-b9fe-13317c0390fa # UserAgentRefererHeaders
+            PathPattern: "/s3*"
+            # ResponseHeadersPolicyId
+            TargetOriginId: monitor
+            ViewerProtocolPolicy: https-only
+            FunctionAssociations:
+              - EventType: viewer-request
+                FunctionARN: arn:aws:cloudfront::935529178062:function/test
+        Origins:
+          - DomainName: revision-935529178062-s3.s3.eu-west-3.amazonaws.com
+            Id: revision
+            ConnectionAttempts: 3
+            ConnectionTimeout: 10
+            S3OriginConfig:
+              OriginAccessIdentity: ""
+          - DomainName: monitor-web.s3.eu-west-3.amazonaws.com
+            Id: monitor
+            ConnectionAttempts: 3
+            ConnectionTimeout: 10
+            S3OriginConfig:
+              OriginAccessIdentity: ""

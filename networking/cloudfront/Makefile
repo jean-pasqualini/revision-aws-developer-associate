@@ -1,4 +1,4 @@
-STACKNAME := "code-build-revision"
+STACKNAME := "cloudfront-revision"
 
 package:
 	aws --profile treezor-playground cloudformation package --template-file template.yaml --output-template packaged.yaml --s3-bucket revision-935529178062-cloudformation
@@ -19,3 +19,6 @@ list-stack-events:
 	aws --profile treezor-playground cloudformation describe-stack-events --stack-name $(STACKNAME)
 delete-stack:
 	aws --profile treezor-playground cloudformation delete-stack --stack-name $(STACKNAME)
+
+test-s3:
+	curl -i https://d3e408dinn8c6g.cloudfront.net/s3/index.html
