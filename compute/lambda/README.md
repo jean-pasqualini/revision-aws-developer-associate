@@ -1,6 +1,8 @@
 ## Note
 - https://learn.hashicorp.com/tutorials/terraform/lambda-api-gateway
 - https://learn.hashicorp.com/tutorials/terraform/blue-green-canary-tests-deployments?in=terraform/aws
+- https://serverlessland.com/patterns
+- https://docs.aws.amazon.com/whitepapers/latest/optimizing-enterprise-economics-with-serverless/optimizing-enterprise-economics-with-serverless.pdf#optimizing-enterprise-economics-with-serverless
 
 ## Objectif
 - Est-ce que le timeout inclu le temps de coldstart ???? non
@@ -53,9 +55,9 @@ L'event mapping est une ressource et il utilise les permissions de la lambda pou
 #### Abort
 
 Dans le cadre d'un appel de type request/response de la part d'un api gateway ou aws sdk/cli
-Une HTTP 500 est retourné au bout du timeout de l'intégration mais la lambda elle continue de s'éxécuter.
+Une HTTP 500 est retourné au bout du timeout de l'intégration, mais la lambda, elle continue de s'exécuter.
 
-Seul le timeout de la lambda décide de s'il faut abord ou non l'exécution. vous êtes donc facturez pendant ce temps.
+Seul le timeout de la lambda décide de s'il faut abord ou non l'exécution. Vous êtes donc facturez pendant ce temps.
 Le throttle ou le publish de nouvelle version va seulement impacter les futures invocations.
 
 #### Concurrency
