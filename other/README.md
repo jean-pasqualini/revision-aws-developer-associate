@@ -13,3 +13,4 @@
 
 https://aws.amazon.com/fr/firewall-manager/
 https://catalog.workshops.aws/observability/en-US/installation
+https://docs.aws.amazon.com/AmazonECS/latest/developerguide/getting-started-aws-copilot-cli.html
